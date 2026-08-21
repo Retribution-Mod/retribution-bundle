@@ -1,5 +1,5 @@
 import { getCorePlugins } from "@core/plugins";
-import { readFile, removeFile, writeFile } from "@lib/api/native/fs";
+import { readFile, removeFile, validatePath, writeFile } from "@lib/api/native/fs";
 import { awaitStorage, createStorage, getPreloadedStorage, preloadStorageIfExists, purgeStorage, updateStorage } from "@lib/api/storage";
 import { safeFetch } from "@lib/utils";
 import { OFFICIAL_PLUGINS_REPO_URL } from "@lib/utils/constants";
@@ -73,14 +73,19 @@ export async function updateAndWritePlugin(repoUrl: string, id: string, fetchScr
     manifest.parentRepository = repoUrl;
 
     if (fetchScript) {
+        const jsPath = `plugins/scripts/${id}.js`;
+        validatePath(jsPath);
+
         // @ts-expect-error - Setting a readonly property
-        manifest.jsPath = `plugins/scripts/${id}.js`;
+        manifest.jsPath = jsPath;
 
         const js: string = await fetchJS(repoUrl, `builds/${id}/index.js`);
-        await writeFile(manifest.jsPath, js);
+        await writeFile(jsPath, js);
     }
 
-    await updateStorage(`plugins/manifests/${id}.json`, manifest);
+    const manifestPath = `plugins/manifests/${id}.json`;
+    validatePath(manifestPath);
+    await updateStorage(manifestPath, manifest);
 
     if (registeredPlugins.has(id)) {
         const existingManifest = registeredPlugins.get(id)!;
@@ -181,7 +186,9 @@ export async function deleteRepository(repoUrl: string) {
         }
 
         // Deregister all plugins under this repository
-        promQueues.push(purgeStorage(`plugins/manifests/${id}.json`));
+        const manifestPath = `plugins/manifests/${id}.json`;
+        validatePath(manifestPath);
+        promQueues.push(purgeStorage(manifestPath));
         registeredPlugins.delete(id);
     }
 
@@ -232,8 +239,13 @@ export async function uninstallPlugin(id: string) {
     pluginInstances.has(id) && stopPlugin(id);
     delete pluginSettings[id];
 
-    await purgeStorage(`plugins/storage/${id}.json`);
-    await removeFile(`plugins/scripts/${id}.js`);
+    const storagePath = `plugins/storage/${id}.json`;
+    const scriptPath = `plugins/scripts/${id}.js`;
+    validatePath(storagePath);
+    validatePath(scriptPath);
+
+    await purgeStorage(storagePath);
+    await removeFile(scriptPath);
 }
 
 
@@ -253,6 +265,7 @@ export async function startPlugin(id: string, { throwIfDisabled = false, disable
         // Stage one, "compile" the plugin
         try {
             // jsPath should always exists when the plugin is installed, unless the storage is corrupted
+            validatePath(manifest.jsPath!);
             const iife = await readFile(manifest.jsPath!!);
             var instantiator = globalEvalWithSourceUrl(
                 `(bunny,definePlugin)=>{${iife};return plugin?.default ?? plugin;}`,

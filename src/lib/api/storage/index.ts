@@ -1,6 +1,6 @@
 import { Emitter } from "@core/vd-compat/Emitter";
 import { Observable, ObserverOptions } from "@gullerya/object-observer";
-import { fileExists, readFile, removeFile, writeFile } from "@lib/api/native/fs";
+import { fileExists, readFile, removeFile, validatePath, writeFile } from "@lib/api/native/fs";
 import { debounce } from "es-toolkit";
 
 const storageInitErrorSymbol = Symbol.for("bunny.storage.initError");
@@ -9,6 +9,7 @@ const storagePromiseSymbol = Symbol.for("bunny.storage.promise");
 const _loadedStorage = {} as Record<string, any>;
 
 function createFileBackend<T extends object>(filePath: string) {
+    validatePath(filePath);
     const write = debounce((data: T) => {
         writeFile(filePath, JSON.stringify(data));
     }, 500);
@@ -57,6 +58,7 @@ export function useObservable(observables: Observable[], opts?: ObserverOptions)
 }
 
 export async function updateStorage<T extends object = {}>(path: string, value: T): Promise<void> {
+    validatePath(path);
     _loadedStorage[path] = value;
     createFileBackend<T>(path).set(value);
 }
@@ -69,6 +71,7 @@ export function createStorageAndCallback<T extends object = {}>(
         nullIfEmpty = false
     } = {}
 ) {
+    validatePath(path);
     let emitter: Emitter;
 
     const callback = (data: any) => {
@@ -164,6 +167,7 @@ export const createStorage = <T extends object = {}>(
 };
 
 export async function preloadStorageIfExists(path: string): Promise<boolean> {
+    validatePath(path);
     if (_loadedStorage[path]) return true;
 
     const backend = createFileBackend(path);
@@ -176,6 +180,7 @@ export async function preloadStorageIfExists(path: string): Promise<boolean> {
 }
 
 export async function purgeStorage(path: string) {
+    validatePath(path);
     await removeFile(path);
     delete _loadedStorage[path];
 }

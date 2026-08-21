@@ -27,7 +27,7 @@ jobs:
                     ${{ runner.os }}-bun-
 
             - name: Setup Bun
-              uses: oven-sh/setup-bun@v2
+              uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
               with:
                 bun-version: latest
 
@@ -48,7 +48,7 @@ jobs:
               run: cp dist/retribution-old.min.js dist/retribution.min.js
 
             - name: Create GitHub release
-              uses: softprops/action-gh-release@v2
+              uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
               with:
                 tag_name: v${{ github.event.inputs.version }}
                 name: Retribution v${{ github.event.inputs.version }}
