@@ -35,9 +35,7 @@ function getAssetById(id: number): Asset {
     return Object.assign(asset, { id });
 }
 
-/**
- * Returns the first asset registry by its registry id (number), name (string) or given filter (function)
- */
+
 export function findAsset(id: number): Asset | undefined;
 export function findAsset(name: string): Asset | undefined;
 export function findAsset(filter: (a: Asset) => boolean): Asset | undefined;
@@ -71,9 +69,7 @@ export function filterAssets(param: string | ((a: Asset) => boolean)) {
     return filteredAssets;
 }
 
-/**
- * Returns the first asset ID in the registry with the given name
- */
+
 export function findAssetId(name: string) {
     return findAsset(name)?.id;
 }

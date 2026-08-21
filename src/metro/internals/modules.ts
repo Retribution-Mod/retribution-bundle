@@ -63,7 +63,7 @@ for (const key in metroModules) {
     }
 }
 
-/** Makes the module associated with the specified ID non-enumberable. */
+
 function blacklistModule(id: number) {
     Object.defineProperty(metroModules, id, { enumerable: false });
     blacklistedIds.add(id);

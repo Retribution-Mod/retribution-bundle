@@ -19,9 +19,7 @@ export interface VdThemeInfo {
 
 export const themes = wrapSync(createStorage<Record<string, VdThemeInfo>>(createMMKVBackend("VENDETTA_THEMES")));
 
-/**
- * @internal
- */
+/** @internal */
 export async function writeThemeToNative(theme: VdThemeInfo | {}) {
     if (typeof theme !== "object") throw new Error("Theme must be an object");
 
@@ -130,16 +128,12 @@ export function getCurrentTheme() {
     return Object.values(themes).find(t => t.selected) ?? null;
 }
 
-/**
- * @internal
- */
+/** @internal */
 export function getThemeFromLoader(): VdThemeInfo | null {
     return getStoredTheme();
 }
 
-/**
- * @internal
- */
+/** @internal */
 export async function initThemes() {
     if (!isThemeSupported()) return;
 

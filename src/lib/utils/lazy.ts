@@ -76,13 +76,7 @@ const lazyHandler: ProxyHandler<any> = {
     },
 };
 
-/**
- * Lazy proxy that will only call the factory function when needed (when a property is accessed)
- * @param factory Factory function to create the object
- * @param asFunction Mock the proxy as a function
- * @returns A proxy that will call the factory function only when needed
- * @example const ChannelStore = proxyLazy(() => findByProps("getChannelId"));
- */
+
 export function proxyLazy<T, I extends ExemptedEntries>(factory: () => T, opts: LazyOptions<I> = {}): T {
     let cache: T;
 
@@ -99,15 +93,7 @@ export function proxyLazy<T, I extends ExemptedEntries>(factory: () => T, opts: 
     return proxy;
 }
 
-/**
- * Lazily destructure an object with all the properties being lazified. This assumes all the properties are either an object or a function
- * @param factory Factory function which resolves to the object (and caches it)
- * @param asFunction Mock the proxy as a function
- * @example
- *
- * const { uuid4 } = lazyDestructure(() => findByProps("uuid4"))
- * uuid4; // <- is a lazy proxy!
- */
+
 export function lazyDestructure<
     T extends Record<PropertyKey, unknown>,
     I extends ExemptedEntries

@@ -26,9 +26,7 @@ export interface RNConstants extends PlatformConstants {
     systemName: string;
 }
 
-/**
- * @internal
- */
+/** @internal */
 export async function toggleSafeMode() {
     settings.safeMode = { ...settings.safeMode, enabled: !settings.safeMode?.enabled };
     if (isThemeSupported()) {
@@ -135,9 +133,7 @@ export function getDebugInfo() {
     };
 }
 
-/**
- * @internal
- */
+/** @internal */
 export function initDebugger() {
     if (!settings.enableAutoDebugger || !settings.debuggerUrl) return;
 

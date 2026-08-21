@@ -9,9 +9,7 @@ interface AssetModule {
 
 export let assetsModule: AssetModule;
 
-/**
- * @internal
- */
+/** @internal */
 export function patchAssets(module: AssetModule) {
     if (assetsModule) return;
     assetsModule = module;

@@ -9,9 +9,7 @@ export const dispatcher = FluxDispatcher;
 type Intercept = (payload: Record<string, any> & { type: string; }) => any;
 let intercepts: Intercept[] = [];
 
-/**
- * @internal
- */
+/** @internal */
 export function injectFluxInterceptor() {
     const cb = (payload: any) => {
         for (const intercept of intercepts) {
@@ -36,10 +34,7 @@ export function injectFluxInterceptor() {
     return () => dispatcher._interceptors &&= dispatcher._interceptors.filter(v => v !== cb);
 }
 
-/**
- * Intercept Flux dispatches. Return type affects the end result, where
- * nullish -> nothing, falsy -> block, object -> modify
- */
+
 export function intercept(cb: Intercept) {
     intercepts.push(cb);
 

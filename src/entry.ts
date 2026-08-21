@@ -8,7 +8,6 @@ globalThis.__RETRIBUTION_BUILD_TARGET__ = __BUILD_TARGET__;
 
 async function initializeRetribution() {
     try {
-        // Make 'freeze' and 'seal' do nothing
         Object.freeze = Object.seal = Object;
 
         await require("@metro/internals/caches").initMetroCache();
@@ -28,11 +27,7 @@ async function initializeRetribution() {
 }
 
 if (typeof window.__r === "undefined") {
-    // Used for storing the current require function for the global.__r getter defined below
     var _requireFunc: any;
-
-    // Calls from the native side are deferred until the index.ts(x) is loaded
-    // Retribution delays the execution of index.ts(x) because Retribution's initialization is asynchronous
     interface DeferredQueue {
         object: any;
         method: string;
@@ -56,8 +51,6 @@ if (typeof window.__r === "undefined") {
                 deferredCalls.push(queue);
                 return returnWith ? returnWith(queue) : undefined;
             }
-
-            // If the condition is not met, we execute the original method immediately
             return original.apply(this, args);
         });
 
@@ -79,14 +72,11 @@ if (typeof window.__r === "undefined") {
     }
 
     const onceIndexRequired = (originalRequire: Metro.RequireFn) => {
-        // We hold calls from the native side
         if (window.__fbBatchedBridge) {
             const batchedBridge = window.__fbBatchedBridge;
             deferMethodExecution(
                 batchedBridge,
                 "callFunctionReturnFlushedQueue",
-                // If the call is to AppRegistry, we want to defer it because it is not yet registered (Retribution delays it)
-                // Same goes to the non-callable modules, which are not registered yet, so we ensure that only registered ones can get through
                 (...args) => args[0] === "AppRegistry" || !batchedBridge.getCallableModule(args[0]),
                 ({ args }) => {
                     if (batchedBridge.getCallableModule(args[0])) {
@@ -96,8 +86,6 @@ if (typeof window.__r === "undefined") {
                 () => batchedBridge.flushedQueue()
             );
         }
-
-        // Introduced since RN New Architecture
         if (window.RN$AppRegistry) {
             deferMethodExecution(window.RN$AppRegistry, "runApplication");
         }
@@ -120,9 +108,7 @@ if (typeof window.__r === "undefined") {
             configurable: true,
             get: () => _requireFunc,
             set(v) {
-                // _requireFunc is required here, because using 'this' here errors for some unknown reason
                 _requireFunc = function patchedRequire(a: number) {
-                    // Initializing index.ts(x)
                     if (a === 0) {
                         if (window.modules instanceof Map) window.modules = Object.fromEntries(window.modules);
                         onceIndexRequired(v);
@@ -144,7 +130,5 @@ if (typeof window.__r === "undefined") {
         }
     });
 } else {
-    // It is too late to late to hook __r, so we just initialize Retribution here
-    // Likely because of using the legacy loader (from Vendetta)
     initializeRetribution();
 }

@@ -25,9 +25,7 @@ export function registerSection(section: { name: string; items: RowConfig[]; }) 
     return () => delete registeredSections[section.name];
 }
 
-/**
- * @internal
- */
+/** @internal */
 export function patchSettings() {
     const unpatches = new Array<() => boolean>;
 

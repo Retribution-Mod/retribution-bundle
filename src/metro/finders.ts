@@ -25,10 +25,7 @@ function filterExports<A extends unknown[]>(
     return {};
 }
 
-/**
- * Returns the [id, defaultExports] of the first module where filter returns non-undefined, and undefined otherwise.
- * @param filter find calls filter once for each enumerable module's exports until it finds one where filter returns a thruthy value.
- */
+
 export function findModule<A extends unknown[]>(filter: FilterFn<A>) {
     const { cacheId, finish } = getCacherForUniq(filter.uniq, false);
 
@@ -48,18 +45,12 @@ export function findModule<A extends unknown[]>(filter: FilterFn<A>) {
     return {};
 }
 
-/**
- * Returns the id of the first module where filter returns non-undefined, and undefined otherwise.
- * @param filter find calls filter once for each enumerable module's exports until it finds one where filter returns a thruthy value.
- */
+
 export function findModuleId<A extends unknown[]>(filter: FilterFn<A>) {
     return findModule(filter)?.id;
 }
 
-/**
- * Returns the exports of the first module where filter returns non-undefined, and undefined otherwise.
- * @param filter find calls filter once for each enumerable module's exports until it finds one where filter returns a thruthy value.
- */
+
 export function findExports<A extends unknown[]>(filter: FilterFn<A>) {
     const { id, defaultExport } = findModule(filter);
     if (id == null) return;
@@ -67,10 +58,7 @@ export function findExports<A extends unknown[]>(filter: FilterFn<A>) {
     return defaultExport ? requireModule(id).default : requireModule(id);
 }
 
-/**
- * Returns the [id, defaultExports] of all modules where filter returns non-undefined.
- * @param filter findAll calls filter once for each enumerable module's exports, adding the exports to the returned array when filter returns a thruthy value.
- */
+
 export function findAllModule<A extends unknown[]>(filter: FilterFn<A>) {
     const { cacheId, finish } = getCacherForUniq(filter.uniq, true);
     const foundExports: {id: number, defaultExport: boolean}[] = [];
@@ -91,18 +79,12 @@ export function findAllModule<A extends unknown[]>(filter: FilterFn<A>) {
     return foundExports;
 }
 
-/**
- * Returns the ids of all modules where filter returns non-undefined.
- * @param filter findAll calls filter once for each enumerable module's exports, adding the exports to the returned array when filter returns a thruthy value.
- */
+
 export function findAllModuleId<A extends unknown[]>(filter: FilterFn<A>) {
     return findAllModule(filter).map(e => e.id);
 }
 
-/**
- * Returns the ids of all exports where filter returns non-undefined.
- * @param filter findAll calls filter once for each enumerable module's exports, adding the exports to the returned array when filter returns a thruthy value.
- */
+
 export function findAllExports<A extends unknown[]>(filter: FilterFn<A>) {
     return findAllModule(filter).map(ret => {
         if (!ret.id) return;

@@ -106,8 +106,6 @@ export default async () => {
         logger.log("Retribution is ready in safe mode!");
         return;
     }
-
-    // Load core UI in parallel, then apply non-critical patches in the background
     await Promise.all([
         initThemes(),
         patchSettings(),
@@ -119,22 +117,12 @@ export default async () => {
         patchErrorBoundary(),
         updatePlugins()
     ]).then(
-        // Push them all to unloader
         u => u.forEach(f => f && lib.unload.push(f))
     );
-
-    // Apply non-critical patches after first render
     patchCommands().then(f => f && lib.unload.push(f));
     injectFluxInterceptor().then(f => f && lib.unload.push(f));
-
-    // Assign window objects
-    // window.bunny is kept for Bunny-spec plugins; window.retribution is the unified API
     window.bunny = lib;
-
-    // Start debugger
     initDebugger();
-
-    // Once done, load Retribution plugins (polymanifest format)
     try {
         lib.unload.push(await VdPluginManager.initPlugins());
         lib.unload.push(VdPluginManager.schedulePluginUpdateChecks());
@@ -144,18 +132,12 @@ export default async () => {
         logger.error("Failed to initialize plugins or handle deep link", e);
         showToast(`Deep link failed: ${message}`, findAssetId("XSmallIcon")!);
     }
-
-    // And then, load Bunny-spec plugins after repository data is refreshed in the background
     updateAllRepository()
         .then(() => initPlugins())
         .catch(e => {
             logger.error("Failed to refresh plugin repositories", e);
             initPlugins();
         });
-
-    // Update the fonts
     updateFonts();
-
-    // We good :)
     logger.log("Retribution is ready!");
 };

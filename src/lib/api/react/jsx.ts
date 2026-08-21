@@ -18,9 +18,7 @@ export function deleteJsxCreate(Component: string, callback: Callback) {
     if (cbs.length === 0) callbacks.delete(Component);
 }
 
-/**
- * @internal
- */
+/** @internal */
 export function patchJsx() {
     const callback = ([Component]: unknown[], ret: JSX.Element) => {
         // Band-aid fix for iOS invalid element type crashes

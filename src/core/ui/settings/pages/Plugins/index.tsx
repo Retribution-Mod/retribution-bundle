@@ -77,9 +77,9 @@ export default function Plugins() {
                 <Card border="strong">
                     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
                         <View style={{ gap: 6, flexShrink: 1 }}>
-                            <Text variant="heading-md/bold">Unproxied Plugins Found</Text>
+                            <Text variant="heading-md/bold">Browser Attribution</Text>
                             <Text variant="text-sm/medium" color="text-muted">
-                                Plugins installed from unproxied sources may run unverified code in this app without your awareness.
+                                Public Plugin Browser is attributed to Arthur777 on discord, Purple Eyes on GitHub
                             </Text>
                         </View>
                         <View style={{ marginLeft: "auto" }}>

@@ -11,9 +11,7 @@ export const getCorePlugins = (): Record<string, CorePlugin> => ({
     "bunny.badges": require("./badges")
 });
 
-/**
- * @internal
- */
+/** @internal */
 export function defineCorePlugin(instance: PluginInstanceInternal): PluginInstanceInternal {
     // @ts-expect-error
     instance[Symbol.for("bunny.core.plugin")] = true;

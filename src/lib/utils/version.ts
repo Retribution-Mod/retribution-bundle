@@ -28,10 +28,7 @@ export function getHermesBytecodeVersion(): number {
     }
 }
 
-/**
- * Returns true when running on the newer RN stack used by Discord 341.x+.
- * This is detected by either HBC version 98+ or RN version 0.86+.
- */
+
 export function isNewArchitecture(): boolean {
     if (getHermesBytecodeVersion() >= 98) return true;
 
@@ -42,7 +39,5 @@ export function isNewArchitecture(): boolean {
     return major > 0 || minor >= 86;
 }
 
-/**
- * Compile-time build target injected by esbuild.
- */
+
 export const BUILD_TARGET: "old" | "new" = typeof __BUILD_TARGET__ !== "undefined" ? __BUILD_TARGET__ : "old";
