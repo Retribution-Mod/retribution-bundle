@@ -13,14 +13,12 @@ import { patchCommands } from "@lib/api/commands";
 import { initDebugger } from "@lib/api/debug";
 import { injectFluxInterceptor } from "@lib/api/flux";
 import { fileExists, readFile, removeFile } from "@lib/api/native/fs";
-import { getLoaderVersion } from "@lib/api/native/loader";
 import { patchJsx } from "@lib/api/react/jsx";
+
 import { logger } from "@lib/utils/logger";
 import { showToast } from "@lib/ui/toasts";
 import { findAssetId } from "@lib/api/assets";
 import { patchSettings } from "@ui/settings";
-import { semver } from "@metro/common";
-import { Alert, Linking } from "react-native";
 
 import * as lib from "./lib";
 
@@ -56,29 +54,6 @@ async function handlePendingDeepLink() {
 }
 
 export default async () => {
-    const loaderVersion = getLoaderVersion();
-    if (loaderVersion && semver.lt(loaderVersion, "1.6.3")) {
-        Alert.alert(
-            "Retribution Xposed Module Outdated",
-            `Your Xposed module (v${loaderVersion}) is too old for this bundle. Open the Retribution Manager app and repatch Discord by reinstalling it.`,
-            [
-                {
-                    text: "Open Manager",
-                    onPress: () => {
-                        Linking.openURL("retribution://manager").catch(() => {
-                            showToast("Unable to open Retribution Manager", findAssetId("XSmallIcon")!);
-                        });
-                    },
-                    style: "default"
-                },
-                { text: "Dismiss", style: "cancel" }
-            ],
-            { cancelable: false }
-        );
-        logger.warn(`Xposed module ${loaderVersion} is below the required 1.6.3; bundle load halted`);
-        return;
-    }
-
     // Wait briefly for settings to load; safe-mode fast path is a nice-to-have,
     // so don't block the app if the storage backend is slow/failing.
     try {
