@@ -18,7 +18,6 @@ export function patchCommands() {
 
     // Register core commands
     [
-        require("@core/commands/eval"),
         require("@core/commands/debug"),
         require("@core/commands/plugins")
     ].forEach(r => registerCommand(r.default()));
