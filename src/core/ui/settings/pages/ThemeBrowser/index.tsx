@@ -1,5 +1,6 @@
 import DataBrowser from "@core/ui/components/DataBrowser";
-import { installTheme } from "@lib/addons/themes";
+import { useProxy } from "@core/vd-compat/storage";
+import { installTheme, themes } from "@lib/addons/themes";
 import themesData from "@assets/data/themes-data.json";
 
 interface ThemeDataItem {
@@ -12,6 +13,8 @@ interface ThemeDataItem {
 }
 
 export default function ThemeBrowser() {
+    useProxy(themes);
+
     return (
         <DataBrowser<ThemeDataItem>
             title="Theme Browser"
@@ -33,6 +36,7 @@ export default function ThemeBrowser() {
                 label: "Install a theme",
                 fetchFn: (url) => installTheme(url),
             }}
+            isInstalled={(item) => item.installUrl in themes}
         />
     );
 }

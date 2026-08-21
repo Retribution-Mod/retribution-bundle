@@ -2,6 +2,8 @@ import AddonCard from "@core/ui/components/AddonCard";
 import AddonPage from "@core/ui/components/AddonPage";
 import { findAssetId } from "@lib/api/assets";
 import { showToast } from "@lib/ui/toasts";
+import { rawColors } from "@ui/color";
+import { Image } from "react-native";
 
 export interface DataItem {
     name: string;
@@ -21,6 +23,7 @@ export interface DataBrowserProps<T extends DataItem> {
         fetchFn?: (url: string) => Promise<void>;
         onPress?: () => void;
     };
+    isInstalled?: (item: T) => boolean;
 }
 
 export default function DataBrowser<T extends DataItem>({
@@ -30,8 +33,12 @@ export default function DataBrowser<T extends DataItem>({
     searchKeys,
     sortOptions,
     installAction,
+    isInstalled,
 }: DataBrowserProps<T>) {
+    const installedIconColor = rawColors.GREEN_500 || rawColors.GREEN_360 || "#43B581";
+
     function CardComponent({ item }: { item: T; result: any }) {
+        const installed = isInstalled?.(item) ?? false;
         const sublabel = [item.authors?.join(", "), item.status].filter(Boolean).join(" • ");
 
         return (
@@ -41,9 +48,16 @@ export default function DataBrowser<T extends DataItem>({
                 descriptionLabel={item.description}
                 actions={[
                     {
-                        icon: "DownloadIcon",
-                        disabled: item.status === "broken" || item.status === "incompatible",
+                        icon: installed
+                            ? <Image
+                                source={findAssetId("CheckmarkSmallIcon")!}
+                                style={{ width: 20, height: 20, tintColor: installedIconColor }}
+                                resizeMode="contain"
+                            />
+                            : "DownloadIcon",
+                        disabled: installed || item.status === "broken" || item.status === "incompatible",
                         onPress: async () => {
+                            if (installed) return;
                             try {
                                 await onInstall(item);
                                 showToast(`Installed ${item.name}`, findAssetId("CheckmarkSmallIcon")!);

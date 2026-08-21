@@ -1,5 +1,6 @@
 import DataBrowser, { DataItem } from "@core/ui/components/DataBrowser";
-import { installFont } from "@lib/addons/fonts";
+import { useProxy } from "@core/vd-compat/storage";
+import { fonts, installFont } from "@lib/addons/fonts";
 import fontsData from "@assets/data/fonts-data.json";
 
 interface FontDataItem extends DataItem {
@@ -14,6 +15,7 @@ function specUrl(family: string) {
 }
 
 export default function FontBrowser() {
+    useProxy(fonts);
     const items = (fontsData as unknown as FontDataItem[]).map((f) => ({
         ...f,
         name: f.family,
@@ -40,6 +42,7 @@ export default function FontBrowser() {
                 label: "Install a font",
                 fetchFn: (url) => installFont(url, true),
             }}
+            isInstalled={(item) => item.family in fonts && !!fonts[item.family]}
         />
     );
 }

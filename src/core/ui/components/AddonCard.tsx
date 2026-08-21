@@ -4,6 +4,7 @@ import { Card, FormRadio, FormSwitch, IconButton, LegacyFormRow, Stack, Text } f
 import { findByProps } from "@metro/wrappers";
 import { semanticColors } from "@ui/color";
 import { createStyles, TextStyleSheet } from "@ui/styles";
+import type { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
 
 const { hideActionSheet } = lazyDestructure(() => findByProps("openLazy", "hideActionSheet"));
@@ -59,7 +60,7 @@ const useStyles = createStyles({
 });
 
 interface Action {
-    icon: string;
+    icon: string | ReactNode;
     disabled?: boolean;
     onPress: () => void;
 }
@@ -80,7 +81,7 @@ interface CardProps {
     headerSublabel?: string;
     headerIcon?: string;
     toggleType?: "switch" | "radio";
-    toggleValue: () => boolean;
+    toggleValue?: () => boolean;
     onToggleChange?: (v: boolean) => void;
     descriptionLabel?: string;
     actions?: Action[];
@@ -114,7 +115,7 @@ export default function AddonCard(props: CardProps) {
                                         },
                                         options: props.overflowActions?.map(i => ({
                                             ...i,
-                                            icon: findAssetId(i.icon)
+                                            icon: typeof i.icon === "string" ? findAssetId(i.icon) : i.icon
                                         })),
                                     })}
                                     size="sm"
@@ -127,20 +128,20 @@ export default function AddonCard(props: CardProps) {
                                     disabled={disabled}
                                     size="sm"
                                     variant="secondary"
-                                    icon={findAssetId(icon)}
+                                    icon={typeof icon === "string" ? findAssetId(icon) : icon}
                                 />
                             ))}
                         </View>
                         {props.toggleType && (props.toggleType === "switch" ?
                             <FormSwitch
-                                value={props.toggleValue()}
+                                value={props.toggleValue?.() ?? false}
                                 onValueChange={props.onToggleChange}
                             />
                             :
                             <TouchableOpacity onPress={() => {
-                                props.onToggleChange?.(!props.toggleValue());
+                                props.onToggleChange?.(!props.toggleValue?.());
                             }}>
-                                <FormRadio selected={props.toggleValue()} />
+                                <FormRadio selected={props.toggleValue?.() ?? false} />
                             </TouchableOpacity>
                         )}
                     </View>

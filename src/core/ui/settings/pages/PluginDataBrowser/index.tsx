@@ -1,5 +1,6 @@
 import DataBrowser from "@core/ui/components/DataBrowser";
 import { VdPluginManager } from "@core/vd-compat/plugins";
+import { useProxy } from "@core/vd-compat/storage";
 import pluginsData from "@assets/data/plugins-data.json";
 import safeFetch from "@lib/utils/safeFetch";
 import { createStorage, awaitStorage } from "@lib/api/storage";
@@ -22,6 +23,7 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 const cache = createStorage<{ items: PluginDataItem[]; fetchedAt: number }>("plugin-browser-cache.json");
 
 export default function PluginDataBrowser() {
+    useProxy(VdPluginManager.plugins);
     const [items, setItems] = useState<PluginDataItem[]>(pluginsData as unknown as PluginDataItem[]);
 
     useEffect(() => {
@@ -75,6 +77,10 @@ export default function PluginDataBrowser() {
             installAction={{
                 label: "Install a plugin",
                 fetchFn: (url) => VdPluginManager.installPlugin(url, true),
+            }}
+            isInstalled={(item) => {
+                const url = item.installUrl.endsWith("/") ? item.installUrl : item.installUrl + "/";
+                return url in VdPluginManager.plugins;
             }}
         />
     );
