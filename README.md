@@ -67,4 +67,8 @@ You can find the documentation of Retribution bundle [here](/docs).
 
 ## 📜 Licence
 
+The Retribution bundle is a derivative of [revenge-mod/revenge-bundle](https://github.com/revenge-mod/revenge-bundle), which is a continuation of [Vendetta](https://github.com/vendetta-mod/Vendetta) and [Bunny](https://github.com/pyoncord/Bunny).
+
+See [ATTRIBUTION.md](ATTRIBUTION.md) for the full attribution and license details for the original work.
+
 Retribution bundle is licensed under the 3-Clause BSD license. Please see the [license file](LICENSE) for more information.
