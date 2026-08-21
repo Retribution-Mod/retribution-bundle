@@ -2,6 +2,7 @@ import DataBrowser from "@core/ui/components/DataBrowser";
 import { VdPluginManager } from "@core/vd-compat/plugins";
 import pluginsData from "@assets/data/plugins-data.json";
 import safeFetch from "@lib/utils/safeFetch";
+import { createStorage, awaitStorage } from "@lib/api/storage";
 import { useEffect, useState } from "react";
 
 interface PluginDataItem {
@@ -16,21 +17,41 @@ interface PluginDataItem {
 }
 
 const PUBLIC_PLUGINS_URL = "https://retribution.is-your.app/data/plugins-data.json";
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+const cache = createStorage<{ items: PluginDataItem[]; fetchedAt: number }>("plugin-browser-cache.json");
 
 export default function PluginDataBrowser() {
     const [items, setItems] = useState<PluginDataItem[]>(pluginsData as unknown as PluginDataItem[]);
 
     useEffect(() => {
-        safeFetch(PUBLIC_PLUGINS_URL, { method: "GET" })
-            .then(async (r) => {
+        let mounted = true;
+
+        (async () => {
+            try {
+                await awaitStorage(cache);
+                const cached = cache.items;
+                const fetchedAt = cache.fetchedAt;
+                if (cached && fetchedAt && Date.now() - Number(fetchedAt) < CACHE_TTL_MS) {
+                    if (mounted) setItems(cached.filter((i: PluginDataItem) => !i.hidden) as unknown as PluginDataItem[]);
+                }
+            } catch { /* no cache yet */ }
+
+            try {
+                const r = await safeFetch(PUBLIC_PLUGINS_URL, { method: "GET", cache: "no-store" });
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 const data = await r.json();
                 if (!Array.isArray(data) || data.length === 0) return;
-                setItems(data.filter((i: PluginDataItem) => !i.hidden) as PluginDataItem[]);
-            })
-            .catch(() => {
-                // Fall back to bundled data
-            });
+                const filtered = data.filter((i: PluginDataItem) => !i.hidden) as unknown as PluginDataItem[];
+                if (mounted) setItems(filtered);
+                cache.items = data;
+                cache.fetchedAt = Date.now();
+            } catch {
+                // Keep stale cache or bundled data
+            }
+        })();
+
+        return () => { mounted = false; };
     }, []);
 
     return (
