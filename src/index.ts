@@ -1,3 +1,5 @@
+import { awaitStorage } from "@core/vd-compat/storage";
+import { settings } from "@lib/api/settings";
 import patchErrorBoundary from "@core/debug/patches/patchErrorBoundary";
 import initFixes from "@core/fixes";
 import { initFetchI18nStrings } from "@core/i18n";
@@ -82,12 +84,33 @@ export default async () => {
         return;
     }
 
-    // Load everything in parallel
+    await awaitStorage(settings);
+
+    if (settings.safeMode?.enabled) {
+        logger.warn("Safe mode is enabled; skipping plugins, themes, fonts, and heavy patches.");
+
+        await Promise.all([
+            initRetributionObject(),
+            initFetchI18nStrings(),
+            patchSettings(),
+            patchJsx(),
+            initSettings(),
+            initFixes(),
+            patchErrorBoundary()
+        ]).then(u => u.forEach(f => f && lib.unload.push(f)));
+
+        window.bunny = lib;
+        initDebugger();
+
+        showToast("Safe mode is enabled. Plugins, themes, and fonts are disabled.", findAssetId("XSmallIcon")!);
+        logger.log("Retribution is ready in safe mode!");
+        return;
+    }
+
+    // Load core UI in parallel, then apply non-critical patches in the background
     await Promise.all([
         initThemes(),
-        injectFluxInterceptor(),
         patchSettings(),
-        patchCommands(),
         patchJsx(),
         initRetributionObject(),
         initFetchI18nStrings(),
@@ -99,6 +122,10 @@ export default async () => {
         // Push them all to unloader
         u => u.forEach(f => f && lib.unload.push(f))
     );
+
+    // Apply non-critical patches after first render
+    patchCommands().then(f => f && lib.unload.push(f));
+    injectFluxInterceptor().then(f => f && lib.unload.push(f));
 
     // Assign window objects
     // window.bunny is kept for Bunny-spec plugins; window.retribution is the unified API
