@@ -20,6 +20,7 @@ import { openAlert } from "@lib/ui/alerts";
 import { showToast } from "@lib/ui/toasts";
 import { findAssetId } from "@lib/api/assets";
 import { patchSettings } from "@ui/settings";
+import initQuote from "@core/message/quote";
 import { semver } from "@metro/common";
 import { AlertActionButton, AlertActions, AlertModal } from "@metro/common/components";
 import { createElement as h } from "react";
@@ -115,7 +116,8 @@ export default async () => {
         initSettings(),
         initFixes(),
         patchErrorBoundary(),
-        updatePlugins()
+        updatePlugins(),
+        initQuote()
     ]).then(
         u => u.forEach(f => f && lib.unload.push(f))
     );
