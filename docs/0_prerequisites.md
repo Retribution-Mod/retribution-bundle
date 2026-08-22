@@ -21,5 +21,5 @@ Before installing Retribution, make sure you meet the requirements for your plat
 
 ## General
 
-- A stable internet connection so the loader can download the latest `retribution.min.js` bundle.
+- A stable internet connection so the loader can download the latest `retribution-new.min.js` or `retribution-old.min.js` bundle, depending on your Discord build.
 - Enough free storage for the patched or sideloaded Discord app.
