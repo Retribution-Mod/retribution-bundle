@@ -1,4 +1,5 @@
-import { LegacyAlert, LegacyFormInput } from "@metro/common/components";
+import { AlertActionButton, AlertActions, AlertModal, Stack, Forms } from "@metro/common/components";
+import { React } from "@metro/common";
 import { findByPropsLazy } from "@metro/wrappers";
 
 const Alerts = findByPropsLazy("openLazy", "close");
@@ -29,30 +30,44 @@ export default function InputAlert({ title, confirmText, confirmColor, onConfirm
     }
 
     return (
-        <LegacyAlert
+        <AlertModal
             title={title}
-            confirmText={confirmText}
-            confirmColor={confirmColor}
-            isConfirmButtonDisabled={error.length !== 0}
-            onConfirm={onConfirmWrapper}
-            cancelText={cancelText}
-            onCancel={() => Alerts.close()}
-        >
-            <LegacyFormInput
-                placeholder={placeholder}
-                value={value}
-                onChange={(v: string | { text: string; }) => {
-                    setValue(typeof v === "string" ? v : v.text);
-                    if (error) setError("");
-                }}
-                returnKeyType="done"
-                onSubmitEditing={onConfirmWrapper}
-                error={error || undefined}
-                secureTextEntry={secureTextEntry}
-                autoFocus={true}
-                showBorder={true}
-                style={{ alignSelf: "stretch" }}
-            />
-        </LegacyAlert>
+            content={placeholder}
+            extraContent={
+                <Stack spacing={8}>
+                    <Forms.FormInput
+                        placeholder={placeholder}
+                        value={value}
+                        onChange={(v: string | { text: string }) => {
+                            setValue(typeof v === "string" ? v : v.text);
+                            if (error) setError("");
+                        }}
+                        returnKeyType="done"
+                        onSubmitEditing={onConfirmWrapper}
+                        error={error || undefined}
+                        secureTextEntry={secureTextEntry}
+                        autoFocus={true}
+                        showBorder={true}
+                        style={{ alignSelf: "stretch" }}
+                    />
+                </Stack>
+            }
+            actions={
+                <AlertActions>
+                    <AlertActionButton
+                        text={cancelText || "Cancel"}
+                        variant="secondary"
+                        onPress={() => Alerts.close()}
+                    />
+                    <AlertActionButton
+                        text={confirmText || "Confirm"}
+                        color={confirmColor}
+                        variant="primary"
+                        onPress={onConfirmWrapper}
+                        disabled={error.length !== 0}
+                    />
+                </AlertActions>
+            }
+        />
     );
 }
