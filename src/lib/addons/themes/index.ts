@@ -3,6 +3,7 @@ import { writeFile } from "@lib/api/native/fs";
 import { getStoredTheme, getThemeFilePath, isPyonLoader, isThemeSupported } from "@lib/api/native/loader";
 import { awaitStorage as newAwaitStorage } from "@lib/api/storage";
 import { safeFetch } from "@lib/utils";
+import { asyncPool } from "@lib/utils/concurrency";
 import { Platform } from "react-native";
 
 import initColors from "./colors";
@@ -121,7 +122,9 @@ export async function removeTheme(id: string) {
 export async function updateThemes() {
     await awaitStorage(themes);
     const currentTheme = getThemeFromLoader();
-    await Promise.allSettled(Object.keys(themes).map(id => fetchTheme(id, currentTheme?.id === id)));
+    // Limit concurrency so a large CloudSync theme set does not fire off
+    // dozens of parallel network requests at startup.
+    await asyncPool(Object.keys(themes), id => fetchTheme(id, currentTheme?.id === id), 4);
 }
 
 export function getCurrentTheme() {

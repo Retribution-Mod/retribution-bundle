@@ -4,6 +4,7 @@ import { findAssetId } from "@lib/api/assets";
 import { settings } from "@lib/api/settings";
 import { showToast } from "@lib/ui/toasts";
 import { safeFetch } from "@lib/utils";
+import { asyncPool } from "@lib/utils/concurrency";
 import { BUNNY_PROXY_PREFIX, VD_PROXY_PREFIX } from "@lib/utils/constants";
 import { logger,LoggerClass } from "@lib/utils/logger";
 
@@ -172,10 +173,38 @@ export const VdPluginManager = {
         const allIds = Object.keys(plugins);
 
         if (!settings.safeMode?.enabled) {
-            // Loop over any plugin that is enabled, update it if allowed, then start it.
-            await Promise.allSettled(allIds.filter(pl => plugins[pl].enabled).map(async pl => (plugins[pl].update && await this.fetchPlugin(pl).catch((e: Error) => logger.error(e.message)), await this.startPlugin(pl))));
-            // Wait for the above to finish, then update all disabled plugins that are allowed to.
+            const enabledIds = allIds.filter(pl => plugins[pl].enabled);
+
+            // Start all enabled plugins from their currently cached JS. This keeps the
+            // startup path off the network so first paint isn't gated by one fetch per
+            // enabled plugin. Concurrency is capped to keep the JS eval from hammering
+            // the main thread all at once.
+            await asyncPool(enabledIds, id => this.startPlugin(id), 6);
+
+            // Update disabled plugins lazily in the background.
             allIds.filter(pl => !plugins[pl].enabled && plugins[pl].update).forEach(pl => this.fetchPlugin(pl));
+
+            // After the app has had a chance to render, check enabled plugins for
+            // updates and restart any whose JS actually changed. Limit concurrency
+            // to avoid a burst of network requests right as the app becomes usable.
+            setTimeout(() => {
+                asyncPool(
+                    enabledIds.filter(pl => plugins[pl].update),
+                    async pl => {
+                        const beforeHash = plugins[pl].manifest.hash;
+                        try {
+                            await this.fetchPlugin(pl);
+                            if (plugins[pl].manifest.hash !== beforeHash) {
+                                if (pluginInstance[pl]) this.stopPlugin(pl, false);
+                                await this.startPlugin(pl);
+                            }
+                        } catch (e: any) {
+                            logger.error(`[PluginUpdate] ${pl}: ${e.message}`);
+                        }
+                    },
+                    4
+                );
+            }, 2000);
         }
 
         return () => this.stopAllPlugins();
