@@ -21,6 +21,7 @@ import { showToast } from "@lib/ui/toasts";
 import { findAssetId } from "@lib/api/assets";
 import { patchSettings } from "@ui/settings";
 import initQuote from "@core/message/quote";
+import { initTimestamps } from "@core/timestamps";
 import { semver } from "@metro/common";
 import { AlertActionButton, AlertActions, AlertModal } from "@metro/common/components";
 import { createElement as h } from "react";
@@ -117,7 +118,8 @@ export default async () => {
         initFixes(),
         patchErrorBoundary(),
         updatePlugins(),
-        initQuote()
+        initQuote(),
+        initTimestamps()
     ]).then(
         u => u.forEach(f => f && lib.unload.push(f))
     );

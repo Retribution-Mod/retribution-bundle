@@ -1,6 +1,14 @@
 import { createFileBackend, createMMKVBackend, createStorage, wrapSync } from "@core/vd-compat/storage";
 import { getLoaderConfigPath } from "@lib/api/native/loader";
 
+export type TimestampMode = "local" | "calendar" | "relative" | "iso" | "custom";
+
+export interface TimestampSettings {
+    mode: TimestampMode;
+    customFormat: string;
+    hideDateIfToday: boolean;
+}
+
 export interface Settings {
     debuggerUrl: string;
     enableAutoDebugger?: boolean;
@@ -11,6 +19,7 @@ export interface Settings {
         currentThemeId?: string;
     };
     enableEvalCommand?: boolean;
+    timestamps?: TimestampSettings;
 }
 
 export interface LoaderConfig {

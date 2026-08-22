@@ -2,6 +2,7 @@ import { React } from "@metro/common";
 import { AlertActionButton, AlertActions, AlertModal, Stack, Forms } from "@metro/common/components";
 import { openAlert, dismissAlert } from "@lib/ui/alerts";
 import { messageUtil } from "@metro/common";
+import { formatTimestamp } from "@core/timestamps";
 
 function getAuthorName(message: any) {
     return message.author?.globalName
@@ -12,7 +13,7 @@ function getAuthorName(message: any) {
 
 function formatQuoteContent(message: any) {
     const author = getAuthorName(message);
-    const timestamp = new Date(message.timestamp).toLocaleString();
+    const timestamp = formatTimestamp(message.timestamp);
 
     const rawContent = String(message.content ?? "").trim().replace(/\n/g, " ");
     const displayContent = rawContent.length > 0
