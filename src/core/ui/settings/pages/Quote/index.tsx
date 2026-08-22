@@ -30,7 +30,7 @@ export default function Quote() {
                     />
                     <TableRadioGroup
                         title="Timestamp style"
-                        defaultValue={quote.timestampStyle ?? "F"}
+                        defaultValue={quote.timestampStyle ?? "T"}
                         hasIcons={false}
                         onChange={v => quote.timestampStyle = v as any}
                     >
@@ -48,7 +48,7 @@ export default function Quote() {
                     <TableSwitchRow
                         label="Include original message"
                         subLabel="Adds the quoted message body below the header"
-                        value={quote.includeQuotedMessage ?? false}
+                        value={quote.includeQuotedMessage ?? true}
                         onValueChange={(v: boolean) => quote.includeQuotedMessage = v}
                     />
                 </TableRowGroup>

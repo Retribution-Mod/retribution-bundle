@@ -15,8 +15,8 @@ const defaultQuoteSettings: NonNullable<typeof settings.quote> = {
     includeAuthor: true,
     includeDay: true,
     includeTimestamp: true,
-    timestampStyle: "F",
-    includeQuotedMessage: false,
+    timestampStyle: "T",
+    includeQuotedMessage: true,
     replyPrefix: "> "
 };
 
