@@ -45,12 +45,6 @@ export default function initSettings() {
                 icon: findAssetId("WrenchIcon"),
                 render: () => import("@core/ui/settings/pages/Developer"),
                 usePredicate: () => settings.developerSettings ?? false
-            },
-            {
-                key: "BUNNY_TIMESTAMPS",
-                title: () => "Timestamps",
-                icon: findAssetId("ClockIcon"),
-                render: () => import("@core/ui/settings/pages/Timestamps")
             }
         ]
     });
