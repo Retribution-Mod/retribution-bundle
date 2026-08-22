@@ -44,9 +44,6 @@ jobs:
               env:
                 BUNDLE_VERSION: "v${{ github.event.inputs.version }}-new"
 
-            - name: Create legacy compatibility asset
-              run: cp dist/retribution-old.min.js dist/retribution.min.js
-
             - name: Create GitHub release
               uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
               with:
@@ -55,5 +52,4 @@ jobs:
                 files: |
                     dist/retribution-old.min.js
                     dist/retribution-new.min.js
-                    dist/retribution.min.js
                 generate_release_notes: true

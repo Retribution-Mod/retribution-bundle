@@ -2,6 +2,7 @@ import { getCorePlugins } from "@core/plugins";
 import { readFile, removeFile, validatePath, writeFile } from "@lib/api/native/fs";
 import { awaitStorage, createStorage, getPreloadedStorage, preloadStorageIfExists, purgeStorage, updateStorage } from "@lib/api/storage";
 import { safeFetch } from "@lib/utils";
+import { asyncPool } from "@lib/utils/concurrency";
 import { OFFICIAL_PLUGINS_REPO_URL } from "@lib/utils/constants";
 import { semver } from "@metro/common";
 
@@ -360,10 +361,8 @@ export async function updatePlugins() {
 export async function initPlugins() {
     await awaitStorage(pluginRepositories, pluginSettings);
 
-    // Now, start all enabled plugins...
-    await Promise.allSettled([...registeredPlugins.keys()].map(async id => {
-        if (isPluginEnabled(id)) {
-            await startPlugin(id);
-        }
-    }));
+    // Start all enabled plugins with limited concurrency to avoid freezing the
+    // main thread when a large CloudSync plugin set loads at once.
+    const enabledIds = [...registeredPlugins.keys()].filter(isPluginEnabled);
+    await asyncPool(enabledIds, startPlugin, 6);
 }

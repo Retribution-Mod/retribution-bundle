@@ -1,4 +1,5 @@
 import * as constants from "./constants";
+import * as concurrency from "./concurrency";
 import cyrb64 from "./cyrb64";
 import findInReactTree from "./findInReactTree";
 import findInTree from "./findInTree";
@@ -10,6 +11,7 @@ import safeFetch from "./safeFetch";
 
 export {
     constants,
+    concurrency,
     cyrb64,
     findInReactTree,
     findInTree,
