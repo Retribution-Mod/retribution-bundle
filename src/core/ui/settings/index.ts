@@ -20,6 +20,12 @@ export default function initSettings() {
                 useTrailing: () => `(${version})`
             },
             {
+                key: "BUNNY_QUOTE",
+                title: () => "Quote",
+                icon: findAssetId("ChatIcon"),
+                render: () => import("@core/ui/settings/pages/Quote")
+            },
+            {
                 key: "BUNNY_PLUGINS",
                 title: () => Strings.PLUGINS,
                 icon: findAssetId("ActivitiesIcon"),

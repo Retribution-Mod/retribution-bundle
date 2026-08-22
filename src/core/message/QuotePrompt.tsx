@@ -2,6 +2,7 @@ import { React } from "@metro/common";
 import { AlertActionButton, AlertActions, AlertModal, Stack, Forms } from "@metro/common/components";
 import { openAlert, dismissAlert } from "@lib/ui/alerts";
 import { messageUtil } from "@metro/common";
+import { settings } from "@lib/api/settings";
 
 function getAuthorName(message: any) {
     return message.author?.globalName
@@ -10,19 +11,49 @@ function getAuthorName(message: any) {
         || "Unknown";
 }
 
+const defaultQuoteSettings: NonNullable<typeof settings.quote> = {
+    includeAuthor: true,
+    includeDay: true,
+    includeTimestamp: true,
+    timestampStyle: "F",
+    includeQuotedMessage: false,
+    replyPrefix: "> "
+};
+
+function getQuoteSettings() {
+    return Object.assign({}, defaultQuoteSettings, settings.quote ?? {});
+}
+
 function formatQuoteContent(message: any) {
+    const q = getQuoteSettings();
     const author = getAuthorName(message);
     const date = new Date(message.timestamp);
     const day = date.toLocaleDateString(undefined, { weekday: "long" });
     const timestampSeconds = Math.floor(date.getTime() / 1000);
 
-    return `${author} | ${day} - <t:${timestampSeconds}:F>`;
+    const parts: string[] = [];
+    if (q.includeAuthor) parts.push(author);
+    if (q.includeDay) parts.push(day);
+    if (q.includeTimestamp) parts.push(`<t:${timestampSeconds}:${q.timestampStyle ?? "F"}>`);
+
+    const header = parts.join(" | ");
+
+    if (!q.includeQuotedMessage) return header;
+
+    const content = String(message.content ?? "").trim();
+    const quotedBody = content.length > 0
+        ? content.split("\n").map(line => `> ${line}`).join("\n")
+        : "> (no text)";
+
+    return `${header}\n${quotedBody}`;
 }
 
 function formatQuoteResponse(quoted: string, response: string) {
+    const q = getQuoteSettings();
+    const prefix = q.replyPrefix ?? "> ";
     const responseLines = response
         .split("\n")
-        .map(line => "> " + line)
+        .map(line => prefix + line)
         .join("\n");
 
     return `${quoted}\n\n${responseLines}`;

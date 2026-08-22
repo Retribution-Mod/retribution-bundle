@@ -1,6 +1,17 @@
 import { createFileBackend, createMMKVBackend, createStorage, wrapSync } from "@core/vd-compat/storage";
 import { getLoaderConfigPath } from "@lib/api/native/loader";
 
+export type QuoteTimestampStyle = "t" | "T" | "d" | "D" | "f" | "F" | "R";
+
+export interface QuoteSettings {
+    includeAuthor?: boolean;
+    includeDay?: boolean;
+    includeTimestamp?: boolean;
+    timestampStyle?: QuoteTimestampStyle;
+    includeQuotedMessage?: boolean;
+    replyPrefix?: string;
+}
+
 export interface Settings {
     debuggerUrl: string;
     enableAutoDebugger?: boolean;
@@ -11,6 +22,7 @@ export interface Settings {
         currentThemeId?: string;
     };
     enableEvalCommand?: boolean;
+    quote?: QuoteSettings;
 }
 
 export interface LoaderConfig {
