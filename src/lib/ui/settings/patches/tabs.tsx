@@ -1,14 +1,12 @@
 import { after } from "@lib/api/patcher";
 import { TableRow } from "@metro/common/components";
-import { findByNameLazy, findByPropsLazy } from "@metro/wrappers";
+import { findByPropsLazy } from "@metro/wrappers";
 import { registeredSections } from "@ui/settings";
 import { Strings } from "@core/i18n";
 import { CustomPageRenderer, wrapOnPress } from "./shared";
-import { findInReactTree } from "@lib/utils";
 
 const settingConstants = findByPropsLazy("SETTING_RENDERER_CONFIG");
 const createListModule = findByPropsLazy("createList");
-const SettingsOverviewScreen = findByNameLazy("SettingsOverviewScreen", false);
 
 
 
@@ -71,88 +69,37 @@ export function patchTabsUI(unpatches: (() => void | boolean)[]) {
         });
     });
 
-    // Prefer the specific SettingsOverviewScreen patch; it only fires for the top-level
-    // settings screen. Fall back to the generic createList patch only if the component
-    // cannot be resolved.
-    try {
-        if (SettingsOverviewScreen) {
-            unpatches.push(after("default", SettingsOverviewScreen, (_, ret) => {
-                const sectionNode = findInReactTree(ret, i => i.props?.sections);
-                if (!sectionNode) return;
+    if (createListModule) {
+        unpatches.push(after("createList", createListModule, function(args, ret) {
+            const [config] = args;
+            if (!config?.sections || !Array.isArray(config.sections)) return ret;
 
-                const { sections } = sectionNode.props;
+            // createList is shared across every settings sub-page, not just the
+            // top-level overview. SettingsOverviewScreen's default export can't be
+            // patched directly (Discord captures a direct reference internally
+            // before our patch runs), so scope by call stack instead — verified
+            // live that only the top-level screen's call chain includes a
+            // SettingsOverviewScreen frame.
+            const stack = new Error().stack ?? "";
+            if (!stack.includes("SettingsOverviewScreen")) return ret;
 
-                // Insert Retribution at the very top of the settings list
-                let index = 0;
+            const sections = config.sections;
+            let index = 0;
 
-                Object.keys(registeredSections).forEach(sect => {
-                    const rows = registeredSections[sect];
-                    if (!rows?.length) return;
+            Object.keys(registeredSections).forEach(sect => {
+                const rows = registeredSections[sect];
+                if (!rows?.length) return;
 
-                    const alreadyExists = sections.some((s: any) => s.label === sect);
-                    if (!alreadyExists) {
-                        sections.splice(index++, 0, {
-                            label: sect,
-                            title: sect,
-                            settings: rows.map(a => a.key)
-                        });
-                    }
-                });
-            }));
-        } else if (createListModule) {
-            unpatches.push(after("createList", createListModule, function(args, ret) {
-                const [config] = args;
-
-                if (config?.sections && Array.isArray(config.sections)) {
-                    const sections = config.sections;
-
-                    // Insert Retribution at the very top of the settings list
-                    let index = 0;
-
-                    Object.keys(registeredSections).forEach(sect => {
-                        const rows = registeredSections[sect];
-                        if (!rows?.length) return;
-
-                        const alreadyExists = sections.some((s: any) => s.label === sect);
-                        if (!alreadyExists) {
-                            sections.splice(index++, 0, {
-                                label: sect,
-                                title: sect,
-                                settings: rows.map(a => a.key)
-                            });
-                        }
+                const alreadyExists = sections.some((s: any) => s.label === sect);
+                if (!alreadyExists) {
+                    sections.splice(index++, 0, {
+                        label: sect,
+                        title: sect,
+                        settings: rows.map(a => a.key)
                     });
                 }
-                return ret;
-            }));
-        }
-    } catch {
-        // If the SettingsOverviewScreen patch throws, fall back to the generic list patch.
-        if (createListModule) {
-            unpatches.push(after("createList", createListModule, function(args, ret) {
-                const [config] = args;
-
-                if (config?.sections && Array.isArray(config.sections)) {
-                    const sections = config.sections;
-
-                    let index = 0;
-
-                    Object.keys(registeredSections).forEach(sect => {
-                        const rows = registeredSections[sect];
-                        if (!rows?.length) return;
-
-                        const alreadyExists = sections.some((s: any) => s.label === sect);
-                        if (!alreadyExists) {
-                            sections.splice(index++, 0, {
-                                label: sect,
-                                title: sect,
-                                settings: rows.map(a => a.key)
-                            });
-                        }
-                    });
-                }
-                return ret;
-            }));
-        }
+            });
+            return ret;
+        }));
     }
 };
