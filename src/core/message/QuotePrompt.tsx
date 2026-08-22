@@ -14,14 +14,9 @@ function formatQuoteContent(message: any) {
     const author = getAuthorName(message);
     const date = new Date(message.timestamp);
     const day = date.toLocaleDateString(undefined, { weekday: "long" });
-    const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    const timestampSeconds = Math.floor(date.getTime() / 1000);
 
-    const content = String(message.content ?? "").trim();
-    const quotedBody = content.length > 0
-        ? content.split("\n").map(line => `> ${line}`).join("\n")
-        : "> (no text)";
-
-    return `${author} | ${day} - ${time}\n${quotedBody}`;
+    return `${author} | ${day} - <t:${timestampSeconds}:F>`;
 }
 
 function formatQuoteResponse(quoted: string, response: string) {
