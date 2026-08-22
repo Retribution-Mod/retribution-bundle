@@ -82,29 +82,6 @@ export default function Plugins() {
                                 Public Plugin Browser is attributed to Arthur777 on discord, Purple Eyes on GitHub
                             </Text>
                         </View>
-                        <View style={{ marginLeft: "auto" }}>
-                            <IconButton
-                                size="sm"
-                                variant="secondary"
-                                icon={findAssetId("CircleInformationIcon-primary")}
-                                style={{ marginLeft: 8 }}
-                                onPress={() => {
-                                    navigation.push("BUNNY_CUSTOM_PAGE", {
-                                        title: "Unproxied Plugins",
-                                        render: () => {
-                                            return <FlashList
-                                                data={unproxiedPlugins}
-                                                contentContainerStyle={{ padding: 8 }}
-                                                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                                                renderItem={({ item: p }: any) => <Card>
-                                                    <Text variant="heading-md/semibold">{p.id}</Text>
-                                                </Card>}
-                                            />;
-                                        }
-                                    });
-                                }}
-                            />
-                        </View>
                     </View>
                 </Card>
             </View>;

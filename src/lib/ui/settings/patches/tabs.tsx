@@ -10,11 +10,7 @@ const settingConstants = findByPropsLazy("SETTING_RENDERER_CONFIG");
 const createListModule = findByPropsLazy("createList");
 const SettingsOverviewScreen = findByNameLazy("SettingsOverviewScreen", false);
 
-function useIsFirstRender() {
-    let firstRender = false;
-    React.useEffect(() => void (firstRender = true), []);
-    return firstRender;
-}
+
 
 export function patchTabsUI(unpatches: (() => void | boolean)[]) {
     const getRows = () => Object.values(registeredSections)
@@ -75,13 +71,17 @@ export function patchTabsUI(unpatches: (() => void | boolean)[]) {
         });
     });
 
-    try{
-        unpatches.push(after("createList", createListModule, function(args, ret) {
-            const [config] = args;
-        
-            if (config?.sections && Array.isArray(config.sections)) {
-                const sections = config.sections;
-            
+    // Prefer the specific SettingsOverviewScreen patch; it only fires for the top-level
+    // settings screen. Fall back to the generic createList patch only if the component
+    // cannot be resolved.
+    try {
+        if (SettingsOverviewScreen) {
+            unpatches.push(after("default", SettingsOverviewScreen, (_, ret) => {
+                const sectionNode = findInReactTree(ret, i => i.props?.sections);
+                if (!sectionNode) return;
+
+                const { sections } = sectionNode.props;
+
                 // Insert Retribution at the very top of the settings list
                 let index = 0;
 
@@ -98,28 +98,61 @@ export function patchTabsUI(unpatches: (() => void | boolean)[]) {
                         });
                     }
                 });
-            }
-            return ret;
-        },));
+            }));
+        } else if (createListModule) {
+            unpatches.push(after("createList", createListModule, function(args, ret) {
+                const [config] = args;
 
-    }catch{
-    unpatches.push(after("default", SettingsOverviewScreen, (_, ret) => {
-        if (useIsFirstRender()) return; // :shrug:
+                if (config?.sections && Array.isArray(config.sections)) {
+                    const sections = config.sections;
 
-        const { sections } = findInReactTree(ret, i => i.props?.sections).props;
-        // Insert Retribution at the very top of the settings list
-        let index = 0;
+                    // Insert Retribution at the very top of the settings list
+                    let index = 0;
 
-        Object.keys(registeredSections).forEach(sect => {
-            const rows = registeredSections[sect];
-            if (!rows?.length) return;
+                    Object.keys(registeredSections).forEach(sect => {
+                        const rows = registeredSections[sect];
+                        if (!rows?.length) return;
 
-            sections.splice(index++, 0, {
-                label: sect,
-                title: sect,
-                settings: rows.map(a => a.key)
-            });
-        });
-    }));
+                        const alreadyExists = sections.some((s: any) => s.label === sect);
+                        if (!alreadyExists) {
+                            sections.splice(index++, 0, {
+                                label: sect,
+                                title: sect,
+                                settings: rows.map(a => a.key)
+                            });
+                        }
+                    });
+                }
+                return ret;
+            }));
+        }
+    } catch {
+        // If the SettingsOverviewScreen patch throws, fall back to the generic list patch.
+        if (createListModule) {
+            unpatches.push(after("createList", createListModule, function(args, ret) {
+                const [config] = args;
+
+                if (config?.sections && Array.isArray(config.sections)) {
+                    const sections = config.sections;
+
+                    let index = 0;
+
+                    Object.keys(registeredSections).forEach(sect => {
+                        const rows = registeredSections[sect];
+                        if (!rows?.length) return;
+
+                        const alreadyExists = sections.some((s: any) => s.label === sect);
+                        if (!alreadyExists) {
+                            sections.splice(index++, 0, {
+                                label: sect,
+                                title: sect,
+                                settings: rows.map(a => a.key)
+                            });
+                        }
+                    });
+                }
+                return ret;
+            }));
+        }
     }
 };
