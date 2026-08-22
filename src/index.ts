@@ -23,6 +23,7 @@ import { patchSettings } from "@ui/settings";
 import initQuote from "@core/message/quote";
 import { semver } from "@metro/common";
 import { AlertActionButton, AlertActions, AlertModal } from "@metro/common/components";
+import { Platform } from "react-native";
 import { createElement as h } from "react";
 import { Linking } from "react-native";
 
@@ -127,19 +128,25 @@ export default async () => {
     initDebugger();
     try {
         lib.unload.push(await VdPluginManager.initPlugins());
-        lib.unload.push(VdPluginManager.schedulePluginUpdateChecks());
+        if (Platform.OS === "android") {
+            lib.unload.push(VdPluginManager.schedulePluginUpdateChecks());
+        }
         await handlePendingDeepLink();
     } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
         logger.error("Failed to initialize plugins or handle deep link", e);
         showToast(`Deep link failed: ${message}`, findAssetId("XSmallIcon")!);
     }
-    updateAllRepository()
-        .then(() => initPlugins())
-        .catch(e => {
-            logger.error("Failed to refresh plugin repositories", e);
-            initPlugins();
-        });
-    updateFonts();
+    if (Platform.OS === "android") {
+        updateAllRepository()
+            .then(() => initPlugins())
+            .catch(e => {
+                logger.error("Failed to refresh plugin repositories", e);
+                initPlugins();
+            });
+        updateFonts();
+    } else {
+        initPlugins();
+    }
     logger.log("Retribution is ready!");
 };
