@@ -84,15 +84,15 @@ export function patchTabsUI(unpatches: (() => void | boolean)[]) {
             if (!stack.includes("SettingsOverviewScreen")) return ret;
 
             const sections = config.sections;
-            let index = 0;
 
+            // Append custom sections at the bottom, after Discord's native categories.
             Object.keys(registeredSections).forEach(sect => {
                 const rows = registeredSections[sect];
                 if (!rows?.length) return;
 
                 const alreadyExists = sections.some((s: any) => s.label === sect);
                 if (!alreadyExists) {
-                    sections.splice(index++, 0, {
+                    sections.push({
                         label: sect,
                         title: sect,
                         settings: rows.map(a => a.key)
