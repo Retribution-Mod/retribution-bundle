@@ -28,8 +28,8 @@ export default function Fonts() {
             }}
             items={Object.values(fonts)}
             safeModeHint={{ message: Strings.SAFE_MODE_NOTICE_FONTS }}
-            ListFooterComponent={() => (
-                <View style={{ alignItems: "center", justifyContent: "center", paddingTop: 16, gap: 12 }}>
+            ListHeaderComponent={() => (
+                <View style={{ alignItems: "center", justifyContent: "center", paddingVertical: 16, gap: 12 }}>
                     <Button
                         size="lg"
                         text="Browse Google Fonts"

@@ -12,18 +12,16 @@ function getAuthorName(message: any) {
 
 function formatQuoteContent(message: any) {
     const author = getAuthorName(message);
-    const timestamp = new Date(message.timestamp).toLocaleString();
+    const date = new Date(message.timestamp);
+    const day = date.toLocaleDateString(undefined, { weekday: "long" });
+    const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
-    const rawContent = String(message.content ?? "").trim().replace(/\n/g, " ");
-    const displayContent = rawContent.length > 0
-        ? rawContent.slice(0, 20) + (rawContent.length > 20 ? "..." : "")
-        : "(no text)";
+    const content = String(message.content ?? "").trim();
+    const quotedBody = content.length > 0
+        ? content.split("\n").map(line => `> ${line}`).join("\n")
+        : "> (no text)";
 
-    const combined = `${author} - ${timestamp}\n${displayContent}`;
-    const maxBacktickRun = (combined.match(/`+/g) || []).reduce((m, r) => Math.max(m, r.length), 0);
-    const fence = "`".repeat(maxBacktickRun + 3);
-
-    return `${fence}${author} - ${timestamp}\n${displayContent}${fence}`;
+    return `${author} | ${day} - ${time}\n${quotedBody}`;
 }
 
 function formatQuoteResponse(quoted: string, response: string) {

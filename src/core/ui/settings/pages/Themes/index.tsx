@@ -45,8 +45,8 @@ export default function Themes() {
                     style={{ marginTop: 8 }}
                 />
             }}
-            ListFooterComponent={() => (
-                <View style={{ alignItems: "center", justifyContent: "center", paddingTop: 16, gap: 12 }}>
+            ListHeaderComponent={() => (
+                <View style={{ alignItems: "center", justifyContent: "center", paddingVertical: 16, gap: 12 }}>
                     <Button
                         size="lg"
                         text="Browse Public Themes"

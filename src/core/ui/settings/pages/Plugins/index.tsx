@@ -71,10 +71,22 @@ export default function Plugins() {
         }}
         ListHeaderComponent={() => {
             const unproxiedPlugins = Object.values(VdPluginManager.plugins).filter(p => !p.id.startsWith(VD_PROXY_PREFIX) && !p.id.startsWith(BUNNY_PROXY_PREFIX));
-            if (!unproxiedPlugins.length) return null;
 
-            return <View style={{ marginVertical: 12, marginHorizontal: 10 }}>
-                <Card border="strong">
+            return <View style={{ marginVertical: 12, marginHorizontal: 10, gap: 12 }}>
+                <View style={{ alignItems: "center", justifyContent: "center", gap: 12 }}>
+                    <Button
+                        size="lg"
+                        text="Browse Public Plugins"
+                        icon={findAssetId("CompassIcon")}
+                        onPress={() => {
+                            navigation.push("BUNNY_CUSTOM_PAGE", {
+                                title: "Public Plugin Browser",
+                                render: PluginDataBrowser,
+                            });
+                        }}
+                    />
+                </View>
+                {unproxiedPlugins.length > 0 && <Card border="strong">
                     <View style={{ flex: 1, justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
                         <View style={{ gap: 6, flexShrink: 1 }}>
                             <Text variant="heading-md/bold">Browser Attribution</Text>
@@ -83,24 +95,9 @@ export default function Plugins() {
                             </Text>
                         </View>
                     </View>
-                </Card>
+                </Card>}
             </View>;
         }}
-        ListFooterComponent={() => (
-            <View style={{ alignItems: "center", justifyContent: "center", paddingTop: 16, gap: 12 }}>
-                <Button
-                    size="lg"
-                    text="Browse Public Plugins"
-                    icon={findAssetId("CompassIcon")}
-                    onPress={() => {
-                        navigation.push("BUNNY_CUSTOM_PAGE", {
-                            title: "Public Plugin Browser",
-                            render: PluginDataBrowser,
-                        });
-                    }}
-                />
-            </View>
-        )}
         installAction={{
             label: "Install a plugin",
             fetchFn: async (url: string) => {
