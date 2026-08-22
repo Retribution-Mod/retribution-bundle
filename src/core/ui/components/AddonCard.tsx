@@ -5,7 +5,7 @@ import { findByProps } from "@metro/wrappers";
 import { semanticColors } from "@ui/color";
 import { createStyles, TextStyleSheet } from "@ui/styles";
 import type { ReactNode } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 
 const { hideActionSheet } = lazyDestructure(() => findByProps("openLazy", "hideActionSheet"));
 const { showSimpleActionSheet } = lazyDestructure(() => findByProps("showSimpleActionSheet"));
@@ -75,7 +75,7 @@ export interface CardWrapper<T> {
     result: Fuzzysort.KeysResult<T>;
 }
 
-interface CardProps {
+export interface CardProps {
     index?: number;
     headerLabel: string;
     headerSublabel?: string;
@@ -84,9 +84,11 @@ interface CardProps {
     toggleValue?: () => boolean;
     onToggleChange?: (v: boolean) => void;
     descriptionLabel?: string;
+    images?: string[];
     actions?: Action[];
     overflowTitle?: string;
     overflowActions?: OverflowAction[];
+    children?: ReactNode;
 }
 
 export default function AddonCard(props: CardProps) {
@@ -149,6 +151,19 @@ export default function AddonCard(props: CardProps) {
                 {props.descriptionLabel && <Text variant="text-md/medium">
                     {props.descriptionLabel}
                 </Text>}
+                {props.images && props.images.length > 0 && (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        {props.images.map((uri, i) => (
+                            <Image
+                                key={`${uri}-${i}`}
+                                source={{ uri }}
+                                style={{ width: 200, height: 120, borderRadius: 8, marginRight: 8 }}
+                                resizeMode="cover"
+                            />
+                        ))}
+                    </ScrollView>
+                )}
+                {props.children}
             </Stack>
         </Card >
     );

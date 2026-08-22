@@ -1,5 +1,5 @@
 import { React } from "@metro/common";
-import { AlertActionButton, AlertActions, AlertModal, Stack, Forms } from "@metro/common/components";
+import { AlertActionButton, AlertActions, AlertModal, Text } from "@metro/common/components";
 import { openAlert, dismissAlert } from "@lib/ui/alerts";
 import { messageUtil } from "@metro/common";
 import { settings } from "@lib/api/settings";
@@ -15,26 +15,24 @@ const defaultQuoteSettings: NonNullable<typeof settings.quote> = {
     includeAuthor: true,
     includeDay: true,
     includeTimestamp: true,
-    timestampStyle: "T",
+    dateStyle: "D",
+    timeStyle: "T",
     includeQuotedMessage: true,
-    replyPrefix: "> "
 };
 
 function getQuoteSettings() {
     return Object.assign({}, defaultQuoteSettings, settings.quote ?? {});
 }
 
-function formatQuoteContent(message: any) {
+export function formatQuoteContent(message: any) {
     const q = getQuoteSettings();
     const author = getAuthorName(message);
-    const date = new Date(message.timestamp);
-    const day = date.toLocaleDateString(undefined, { weekday: "long" });
-    const timestampSeconds = Math.floor(date.getTime() / 1000);
+    const timestampSeconds = Math.floor(new Date(message.timestamp).getTime() / 1000);
 
     const parts: string[] = [];
     if (q.includeAuthor) parts.push(author);
-    if (q.includeDay) parts.push(day);
-    if (q.includeTimestamp) parts.push(`<t:${timestampSeconds}:${q.timestampStyle ?? "F"}>`);
+    if (q.includeDay) parts.push(`<t:${timestampSeconds}:${q.dateStyle ?? "D"}>`);
+    if (q.includeTimestamp) parts.push(`<t:${timestampSeconds}:${q.timeStyle ?? "T"}>`);
 
     const header = parts.join(" | ");
 
@@ -48,17 +46,6 @@ function formatQuoteContent(message: any) {
     return `${header}\n${quotedBody}`;
 }
 
-function formatQuoteResponse(quoted: string, response: string) {
-    const q = getQuoteSettings();
-    const prefix = q.replyPrefix ?? "> ";
-    const responseLines = response
-        .split("\n")
-        .map(line => prefix + line)
-        .join("\n");
-
-    return `${quoted}\n\n${responseLines}`;
-}
-
 interface QuotePromptProps {
     message: any;
 }
@@ -66,18 +53,12 @@ interface QuotePromptProps {
 const ALERT_KEY = "retribution-quote";
 
 export default function QuotePrompt({ message }: QuotePromptProps) {
-    const [value, setValue] = React.useState("");
+    const preview = formatQuoteContent(message);
 
     function onConfirm() {
-        const trimmed = value.trim();
-        if (!trimmed) return;
-
-        const quoted = formatQuoteContent(message);
-        const content = formatQuoteResponse(quoted, trimmed);
-
         messageUtil.sendMessage(
             message.channel_id,
-            { content },
+            { content: preview },
             void 0,
             { nonce: Date.now().toString() }
         );
@@ -88,22 +69,11 @@ export default function QuotePrompt({ message }: QuotePromptProps) {
     return (
         <AlertModal
             title="Quote message"
-            content="Type your response below:"
+            content="Preview:"
             extraContent={
-                <Stack spacing={8}>
-                    <Forms.FormInput
-                        placeholder="Type your response..."
-                        value={value}
-                        onChange={(v: string | { text: string }) => {
-                            setValue(typeof v === "string" ? v : v.text);
-                        }}
-                        returnKeyType="done"
-                        onSubmitEditing={onConfirm}
-                        autoFocus={true}
-                        showBorder={true}
-                        style={{ alignSelf: "stretch" }}
-                    />
-                </Stack>
+                <Text variant="text-md/medium" style={{ marginTop: 8 }}>
+                    {preview}
+                </Text>
             }
             actions={
                 <AlertActions>

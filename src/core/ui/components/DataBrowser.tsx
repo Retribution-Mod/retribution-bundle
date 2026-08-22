@@ -1,15 +1,17 @@
-import AddonCard from "@core/ui/components/AddonCard";
+import AddonCard, { type CardProps, type CardWrapper } from "@core/ui/components/AddonCard";
 import AddonPage from "@core/ui/components/AddonPage";
 import { findAssetId } from "@lib/api/assets";
 import { showToast } from "@lib/ui/toasts";
 import { rawColors } from "@ui/color";
 import { Image } from "react-native";
+import type { ComponentType } from "react";
 
 export interface DataItem {
     name: string;
     description?: string;
     authors?: string[];
     status?: string;
+    images?: string[];
 }
 
 export interface DataBrowserProps<T extends DataItem> {
@@ -24,6 +26,7 @@ export interface DataBrowserProps<T extends DataItem> {
         onPress?: () => void;
     };
     isInstalled?: (item: T) => boolean;
+    CardComponent?: ComponentType<CardWrapper<T>>;
 }
 
 export default function DataBrowser<T extends DataItem>({
@@ -34,41 +37,43 @@ export default function DataBrowser<T extends DataItem>({
     sortOptions,
     installAction,
     isInstalled,
+    CardComponent: CustomCard,
 }: DataBrowserProps<T>) {
     const installedIconColor = rawColors.GREEN_500 || rawColors.GREEN_360 || "#43B581";
 
-    function CardComponent({ item }: { item: T; result: any }) {
+    function DefaultCard({ item }: CardWrapper<T>) {
         const installed = isInstalled?.(item) ?? false;
         const sublabel = [item.authors?.join(", "), item.status].filter(Boolean).join(" • ");
 
-        return (
-            <AddonCard
-                headerLabel={item.name}
-                headerSublabel={sublabel || undefined}
-                descriptionLabel={item.description}
-                actions={[
-                    {
-                        icon: installed
-                            ? <Image
-                                source={findAssetId("CheckmarkSmallIcon")!}
-                                style={{ width: 20, height: 20, tintColor: installedIconColor }}
-                                resizeMode="contain"
-                            />
-                            : "DownloadIcon",
-                        disabled: installed || item.status === "broken" || item.status === "incompatible",
-                        onPress: async () => {
-                            if (installed) return;
-                            try {
-                                await onInstall(item);
-                                showToast(`Installed ${item.name}`, findAssetId("CheckmarkSmallIcon")!);
-                            } catch (e) {
-                                showToast(e instanceof Error ? e.message : String(e), findAssetId("XSmallIcon")!);
-                            }
-                        },
+        const cardProps: CardProps = {
+            headerLabel: item.name,
+            headerSublabel: sublabel || undefined,
+            descriptionLabel: item.description,
+            images: item.images,
+            actions: [
+                {
+                    icon: installed
+                        ? <Image
+                            source={findAssetId("CheckmarkSmallIcon")!}
+                            style={{ width: 20, height: 20, tintColor: installedIconColor }}
+                            resizeMode="contain"
+                        />
+                        : "DownloadIcon",
+                    disabled: installed || item.status === "broken" || item.status === "incompatible",
+                    onPress: async () => {
+                        if (installed) return;
+                        try {
+                            await onInstall(item);
+                            showToast(`Installed ${item.name}`, findAssetId("CheckmarkSmallIcon")!);
+                        } catch (e) {
+                            showToast(e instanceof Error ? e.message : String(e), findAssetId("XSmallIcon")!);
+                        }
                     },
-                ]}
-            />
-        );
+                },
+            ],
+        };
+
+        return <AddonCard {...cardProps} />;
     }
 
     return (
@@ -78,7 +83,7 @@ export default function DataBrowser<T extends DataItem>({
             searchKeywords={searchKeys}
             sortOptions={sortOptions}
             installAction={installAction}
-            CardComponent={CardComponent as any}
+            CardComponent={CustomCard ?? (DefaultCard as any)}
         />
     );
 }

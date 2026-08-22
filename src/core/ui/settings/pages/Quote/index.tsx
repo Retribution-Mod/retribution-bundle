@@ -2,7 +2,7 @@ import { useProxy } from "@core/vd-compat/storage";
 import { settings } from "@lib/api/settings";
 import { findAssetId } from "@lib/api/assets";
 import { ScrollView } from "react-native";
-import { Stack, TableRowGroup, TableSwitchRow, TableRadioGroup, TableRadioRow, TextInput } from "@metro/common/components";
+import { Stack, TableRowGroup, TableSwitchRow, TableRadioGroup, TableRadioRow } from "@metro/common/components";
 
 export default function Quote() {
     useProxy(settings);
@@ -29,18 +29,24 @@ export default function Quote() {
                         onValueChange={(v: boolean) => quote.includeTimestamp = v}
                     />
                     <TableRadioGroup
-                        title="Timestamp style"
-                        defaultValue={quote.timestampStyle ?? "T"}
+                        title="Date style"
+                        defaultValue={quote.dateStyle ?? "D"}
                         hasIcons={false}
-                        onChange={v => quote.timestampStyle = v as any}
+                        onChange={v => quote.dateStyle = v as any}
                     >
-                        <TableRadioRow label="Short time (t)" value="t" />
-                        <TableRadioRow label="Long time (T)" value="T" />
                         <TableRadioRow label="Short date (d)" value="d" />
                         <TableRadioRow label="Long date (D)" value="D" />
                         <TableRadioRow label="Short date/time (f)" value="f" />
                         <TableRadioRow label="Long date/time (F)" value="F" />
-                        <TableRadioRow label="Relative (R)" value="R" />
+                    </TableRadioGroup>
+                    <TableRadioGroup
+                        title="Time style"
+                        defaultValue={quote.timeStyle ?? "T"}
+                        hasIcons={false}
+                        onChange={v => quote.timeStyle = v as any}
+                    >
+                        <TableRadioRow label="Short time (t)" value="t" />
+                        <TableRadioRow label="Long time (T)" value="T" />
                     </TableRadioGroup>
                 </TableRowGroup>
 
@@ -50,15 +56,6 @@ export default function Quote() {
                         subLabel="Adds the quoted message body below the header"
                         value={quote.includeQuotedMessage ?? true}
                         onValueChange={(v: boolean) => quote.includeQuotedMessage = v}
-                    />
-                </TableRowGroup>
-
-                <TableRowGroup title="Reply">
-                    <TextInput
-                        label="Reply prefix"
-                        placeholder="> "
-                        defaultValue={quote.replyPrefix ?? "> "}
-                        onChange={(v: string) => quote.replyPrefix = v}
                     />
                 </TableRowGroup>
             </Stack>

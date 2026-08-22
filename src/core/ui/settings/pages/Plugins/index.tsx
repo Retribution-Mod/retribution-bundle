@@ -9,21 +9,14 @@ import { Author } from "@lib/addons/types";
 import { findAssetId } from "@lib/api/assets";
 import { settings } from "@lib/api/settings";
 import { useObservable } from "@lib/api/storage";
-import { showToast } from "@lib/ui/toasts";
-import { BUNNY_PROXY_PREFIX, VD_PROXY_PREFIX } from "@lib/utils/constants";
-import { lazyDestructure } from "@lib/utils/lazy";
-import { findByProps } from "@metro";
 import { NavigationNative } from "@metro/common";
-import { Button, Card, FlashList, IconButton, Text } from "@metro/common/components";
+import { Button, Card, Text } from "@metro/common/components";
 import { ComponentProps } from "react";
 import { View } from "react-native";
 
 import { UnifiedPluginModel } from "./models";
 import unifyBunnyPlugin from "./models/bunny";
 import unifyVdPlugin from "./models/vendetta";
-
-const { openAlert } = lazyDestructure(() => findByProps("openAlert", "dismissAlert"));
-const { AlertModal, AlertActions, AlertActionButton } = lazyDestructure(() => findByProps("AlertModal", "AlertActions"));
 
 interface PluginPageProps extends Partial<ComponentProps<typeof AddonPage<UnifiedPluginModel>>> {
     useItems: () => unknown[];
@@ -69,10 +62,18 @@ export default function Plugins() {
 
             return [...vdPlugins, ...bnPlugins];
         }}
-        ListHeaderComponent={() => {
-            const unproxiedPlugins = Object.values(VdPluginManager.plugins).filter(p => !p.id.startsWith(VD_PROXY_PREFIX) && !p.id.startsWith(BUNNY_PROXY_PREFIX));
-
-            return <View style={{ marginVertical: 12, marginHorizontal: 10, gap: 12 }}>
+        ListHeaderComponent={() => (
+            <View style={{ marginVertical: 12, marginHorizontal: 10, gap: 12 }}>
+                <Card border="strong">
+                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
+                        <View style={{ gap: 6, flexShrink: 1 }}>
+                            <Text variant="heading-md/bold">Browser Attribution</Text>
+                            <Text variant="text-sm/medium" color="text-muted">
+                                Public Plugin Browser is attributed to Arthur777 on discord, Purple Eyes on GitHub
+                            </Text>
+                        </View>
+                    </View>
+                </Card>
                 <View style={{ alignItems: "center", justifyContent: "center", gap: 12 }}>
                     <Button
                         size="lg"
@@ -86,44 +87,11 @@ export default function Plugins() {
                         }}
                     />
                 </View>
-                {unproxiedPlugins.length > 0 && <Card border="strong">
-                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
-                        <View style={{ gap: 6, flexShrink: 1 }}>
-                            <Text variant="heading-md/bold">Browser Attribution</Text>
-                            <Text variant="text-sm/medium" color="text-muted">
-                                Public Plugin Browser is attributed to Arthur777 on discord, Purple Eyes on GitHub
-                            </Text>
-                        </View>
-                    </View>
-                </Card>}
-            </View>;
-        }}
+            </View>
+        )}
         installAction={{
             label: "Install a plugin",
-            fetchFn: async (url: string) => {
-                if (!url.startsWith(VD_PROXY_PREFIX) && !url.startsWith(BUNNY_PROXY_PREFIX) && !settings.developerSettings) {
-                    openAlert("bunny-plugin-unproxied-confirmation", <AlertModal
-                        title="Hold On!"
-                        content="You're trying to install a plugin from an unproxied external source. This means you're trusting the creator to run their code in this app without your knowledge. Are you sure you want to continue?"
-                        extraContent={<Card><Text variant="text-md/bold">{url}</Text></Card>}
-                        actions={<AlertActions>
-                            <AlertActionButton text="Continue" variant="primary" onPress={() => {
-                                VdPluginManager.installPlugin(url)
-                                    .then(() => showToast(Strings.TOASTS_INSTALLED_PLUGIN, findAssetId("DownloadIcon")))
-                                    .catch(e => openAlert("bunny-plugin-install-failed", <AlertModal
-                                        title="Install Failed"
-                                        content={`Unable to install plugin from '${url}':`}
-                                        extraContent={<Card><Text variant="text-md/normal">{e instanceof Error ? e.message : String(e)}</Text></Card>}
-                                        actions={<AlertActionButton text="Okay" variant="primary" />}
-                                    />));
-                            }} />
-                            <AlertActionButton text="Cancel" variant="secondary" />
-                        </AlertActions>}
-                    />);
-                } else {
-                    return await VdPluginManager.installPlugin(url);
-                }
-            }
+            fetchFn: (url: string) => VdPluginManager.installPlugin(url)
         }}
     />;
 }

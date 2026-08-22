@@ -7,9 +7,9 @@ export interface QuoteSettings {
     includeAuthor?: boolean;
     includeDay?: boolean;
     includeTimestamp?: boolean;
-    timestampStyle?: QuoteTimestampStyle;
+    dateStyle?: QuoteTimestampStyle;
+    timeStyle?: QuoteTimestampStyle;
     includeQuotedMessage?: boolean;
-    replyPrefix?: string;
 }
 
 export interface Settings {
