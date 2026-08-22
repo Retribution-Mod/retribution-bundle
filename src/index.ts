@@ -119,8 +119,8 @@ export default async () => {
     ]).then(
         u => u.forEach(f => f && lib.unload.push(f))
     );
-    patchCommands().then(f => f && lib.unload.push(f));
-    injectFluxInterceptor().then(f => f && lib.unload.push(f));
+    lib.unload.push(patchCommands());
+    lib.unload.push(injectFluxInterceptor());
     window.bunny = lib;
     initDebugger();
     try {
