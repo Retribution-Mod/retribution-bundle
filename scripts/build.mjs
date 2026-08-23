@@ -23,12 +23,12 @@ const {
     "release-branch": releaseBranch,
     "build-minify": buildMinify,
     "dev": dev,
-    "target": buildTarget = "old",
+    "target": buildTarget = "new",
     "skip-hermes": skipHermes = false,
 } = args;
 
-if (!["old", "new"].includes(buildTarget)) {
-    throw new Error(`Invalid build target: ${buildTarget}. Use "old" or "new".`);
+if (buildTarget !== "new") {
+    throw new Error(`Invalid build target: ${buildTarget}. Only "new" is supported.`);
 }
 
 let context = null;

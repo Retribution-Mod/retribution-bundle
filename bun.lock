@@ -17,7 +17,7 @@
         "@types/react-native": "0.72.3",
         "es-toolkit": "^1.39.7",
         "fuzzysort": "^3.1.0",
-        "hermes-compiler": "250829098.0.17",
+        "hermes-compiler": "250829098.0.13",
         "intl-messageformat": "^10.7.16",
         "moment": "2.29.4",
         "react-native": "0.81.4",
@@ -869,7 +869,7 @@
 
     "hasown": ["hasown@2.0.4", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A=="],
 
-    "hermes-compiler": ["hermes-compiler@250829098.0.17", "", {}, "sha512-qG1PXzTEtriF6oQLZF3vyHhSMxOdW5h2TqqLri0rdpstPustd2fSvRZQMVAPdlhgFwBfYnj3OUZtiO6LjYsEFw=="],
+    "hermes-compiler": ["hermes-compiler@250829098.0.13", "", {}, "sha512-6Ivl/892zuiORZdKmBsTlCyCIaCC3+QK/8a9E4nCSIn5kPvOZMUk5lQ1vgyuMBSBD+bnu59RePORn1siZv6zgA=="],
 
     "hermes-estree": ["hermes-estree@0.29.1", "", {}, "sha512-jl+x31n4/w+wEqm0I2r4CMimukLbLQEYpisys5oCre611CI5fc9TxhqkBBCJ1edDG4Kza0f7CgNz8xVMLZQOmQ=="],
 
