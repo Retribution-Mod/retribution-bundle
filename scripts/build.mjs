@@ -24,8 +24,10 @@ const {
     "build-minify": buildMinify,
     "dev": dev,
     "target": buildTarget = "new",
-    "skip-hermes": skipHermes = false,
+    "use-hermes": useHermes = false,
 } = args;
+
+const compileHermes = !!useHermes;
 
 if (buildTarget !== "new") {
     throw new Error(`Invalid build target: ${buildTarget}. Only "new" is supported.`);
@@ -166,8 +168,7 @@ const pathPassedToNode = path.resolve(process.argv[1]);
 const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
 if (isThisFileBeingRunViaCLI) {
-    const nonMinifiedOutfile = compileHermes ? config.outfile : config.outfile.replace(/\.js$/, "-plain.js");
-    const { timeTook } = await buildBundle({ outfile: nonMinifiedOutfile }, compileHermes);
+    const { timeTook } = await buildBundle({ outfile: config.outfile }, compileHermes);
 
     printBuildSuccess(
         context.hash,
@@ -176,12 +177,9 @@ if (isThisFileBeingRunViaCLI) {
     );
 
     if (buildMinify) {
-        const minifiedOutfile = compileHermes
-            ? config.outfile.replace(/\.js$/, ".min.js")
-            : config.outfile.replace(/\.js$/, "-plain.js");
         const { timeTook } = await buildBundle({
             minify: true,
-            outfile: minifiedOutfile
+            outfile: config.outfile.replace(/\.js$/, ".min.js")
         }, compileHermes);
 
         printBuildSuccess(

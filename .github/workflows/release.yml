@@ -34,13 +34,8 @@ jobs:
             - name: Install dependencies
               run: bun install --frozen-lockfile
 
-            - name: Build new bundle (HBC)
+            - name: Build new bundle
               run: bun run build --build-minify --target new
-              env:
-                BUNDLE_VERSION: "v${{ github.event.inputs.version }}-new"
-
-            - name: Build new bundle (plain JS)
-              run: bun run build --build-minify --target new --skip-hermes
               env:
                 BUNDLE_VERSION: "v${{ github.event.inputs.version }}-new"
 
@@ -51,5 +46,4 @@ jobs:
                 name: Retribution v${{ github.event.inputs.version }}
                 files: |
                     dist/retribution-new.min.js
-                    dist/retribution-new-plain.js
                 generate_release_notes: true
