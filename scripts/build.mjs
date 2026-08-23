@@ -24,6 +24,7 @@ const {
     "build-minify": buildMinify,
     "dev": dev,
     "target": buildTarget = "old",
+    "skip-hermes": skipHermes = false,
 } = args;
 
 if (!["old", "new"].includes(buildTarget)) {
@@ -124,7 +125,7 @@ const config = {
     ]
 };
 
-export async function buildBundle(overrideConfig = {}, skipHermes) {
+export async function buildBundle(overrideConfig = {}, compileHermes) {
     context = {
         hash: releaseBranch ? execSync("git rev-parse --short HEAD").toString().trim() : crypto.randomBytes(8).toString("hex").slice(0, 7)
     };
@@ -132,7 +133,7 @@ export async function buildBundle(overrideConfig = {}, skipHermes) {
     const initialStartTime = performance.now();
     await build({ ...config, ...overrideConfig });
 
-    if (!skipHermes) {
+    if (compileHermes) {
         const paths = {
             win32: "win64-bin/hermesc.exe",
             darwin: "osx-bin/hermesc",
@@ -165,7 +166,8 @@ const pathPassedToNode = path.resolve(process.argv[1]);
 const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
 if (isThisFileBeingRunViaCLI) {
-    const { timeTook } = await buildBundle({}, true);
+    const compileHermes = !skipHermes;
+    const { timeTook } = await buildBundle({}, compileHermes);
 
     printBuildSuccess(
         context.hash,
@@ -177,7 +179,7 @@ if (isThisFileBeingRunViaCLI) {
         const { timeTook } = await buildBundle({
             minify: true,
             outfile: config.outfile.replace(/\.js$/, ".min.js")
-        }, true);
+        }, compileHermes);
 
         printBuildSuccess(
             context.hash,
