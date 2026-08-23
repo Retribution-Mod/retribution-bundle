@@ -148,7 +148,7 @@ export async function buildBundle(overrideConfig = {}, compileHermes) {
 
         const actualFile = overrideConfig.outfile ?? config.outfile;
 
-        execFileSync(binPath, ["-finline", "-strict", "-O", "-g1", "-reuse-prop-cache", "-optimized-eval", "-emit-binary", "-Wno-undefined-variable", "-out", actualFile], {
+        execFileSync(binPath, ["-finline", "-strict", "-O", "-g1", "-emit-binary", "-Wno-undefined-variable", "-out", actualFile], {
             input: await readFile(actualFile),
             stdio: "pipe"
         });
@@ -166,8 +166,8 @@ const pathPassedToNode = path.resolve(process.argv[1]);
 const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
 if (isThisFileBeingRunViaCLI) {
-    const compileHermes = !skipHermes;
-    const { timeTook } = await buildBundle({}, compileHermes);
+    const nonMinifiedOutfile = compileHermes ? config.outfile : config.outfile.replace(/\.js$/, "-plain.js");
+    const { timeTook } = await buildBundle({ outfile: nonMinifiedOutfile }, compileHermes);
 
     printBuildSuccess(
         context.hash,
@@ -176,9 +176,12 @@ if (isThisFileBeingRunViaCLI) {
     );
 
     if (buildMinify) {
+        const minifiedOutfile = compileHermes
+            ? config.outfile.replace(/\.js$/, ".min.js")
+            : config.outfile.replace(/\.js$/, "-plain.js");
         const { timeTook } = await buildBundle({
             minify: true,
-            outfile: config.outfile.replace(/\.js$/, ".min.js")
+            outfile: minifiedOutfile
         }, compileHermes);
 
         printBuildSuccess(
