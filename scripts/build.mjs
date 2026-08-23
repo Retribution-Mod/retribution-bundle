@@ -5,7 +5,6 @@ import { execFileSync, execSync } from "child_process";
 import crypto from "crypto";
 import { build } from "esbuild";
 import globalPlugin from "esbuild-plugin-globals";
-import { existsSync, chmodSync } from "fs";
 import { readFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -146,11 +145,6 @@ export async function buildBundle(overrideConfig = {}, skipHermes) {
 
         const sdksDir = "./node_modules/hermes-compiler";
         const binPath = `${sdksDir}/hermesc/${paths[process.platform]}`;
-
-        if (!existsSync(binPath))
-            throw new Error(`hermesc not found at ${binPath}`);
-
-        chmodSync(binPath, 0o755);
 
         const actualFile = overrideConfig.outfile ?? config.outfile;
 
