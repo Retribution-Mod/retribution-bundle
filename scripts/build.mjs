@@ -172,7 +172,8 @@ const pathPassedToNode = path.resolve(process.argv[1]);
 const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
 if (isThisFileBeingRunViaCLI) {
-    const { timeTook } = await buildBundle({}, skipHermes);
+    const compileHermes = !skipHermes;
+    const { timeTook } = await buildBundle({}, compileHermes);
 
     printBuildSuccess(
         context.hash,
@@ -184,7 +185,7 @@ if (isThisFileBeingRunViaCLI) {
         const { timeTook } = await buildBundle({
             minify: true,
             outfile: config.outfile.replace(/\.js$/, ".min.js")
-        }, skipHermes);
+        }, compileHermes);
 
         printBuildSuccess(
             context.hash,
