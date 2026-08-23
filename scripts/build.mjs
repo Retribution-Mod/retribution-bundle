@@ -24,7 +24,6 @@ const {
     "build-minify": buildMinify,
     "dev": dev,
     "target": buildTarget = "old",
-    "skip-hermes": skipHermes = false,
 } = args;
 
 if (!["old", "new"].includes(buildTarget)) {
@@ -166,8 +165,7 @@ const pathPassedToNode = path.resolve(process.argv[1]);
 const isThisFileBeingRunViaCLI = pathToThisFile.includes(pathPassedToNode);
 
 if (isThisFileBeingRunViaCLI) {
-    const compileHermes = !skipHermes;
-    const { timeTook } = await buildBundle({}, compileHermes);
+    const { timeTook } = await buildBundle({}, true);
 
     printBuildSuccess(
         context.hash,
@@ -179,7 +177,7 @@ if (isThisFileBeingRunViaCLI) {
         const { timeTook } = await buildBundle({
             minify: true,
             outfile: config.outfile.replace(/\.js$/, ".min.js")
-        }, compileHermes);
+        }, true);
 
         printBuildSuccess(
             context.hash,
