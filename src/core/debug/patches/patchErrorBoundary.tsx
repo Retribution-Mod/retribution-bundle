@@ -1,5 +1,6 @@
 import ErrorBoundaryScreen from "@core/ui/reporter/components/ErrorBoundaryScreen";
 import { after } from "@lib/api/patcher";
+import { captureException } from "@lib/sentry";
 import { _lazyContextSymbol } from "@metro/lazy";
 import { LazyModuleContext } from "@metro/types";
 import { findByNameLazy } from "@metro/wrappers";
@@ -12,6 +13,8 @@ function getErrorBoundaryContext() {
 export default function patchErrorBoundary() {
     return after.await("render", getErrorBoundaryContext(), function (this: any) {
         if (!this.state.error) return;
+
+        captureException(this.state.error);
 
         return <ErrorBoundaryScreen
             error={this.state.error}
