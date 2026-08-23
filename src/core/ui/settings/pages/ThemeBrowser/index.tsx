@@ -1,6 +1,6 @@
 import DataBrowser from "@core/ui/components/DataBrowser";
 import { useProxy } from "@core/vd-compat/storage";
-import { fetchTheme, themes } from "@lib/addons/themes";
+import { fetchTheme, installTheme, themes } from "@lib/addons/themes";
 import themesData from "@assets/data/themes-data.json";
 
 interface ThemeDataItem {

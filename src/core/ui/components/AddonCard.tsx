@@ -5,7 +5,7 @@ import { findByProps } from "@metro/wrappers";
 import { semanticColors } from "@ui/color";
 import { createStyles, TextStyleSheet } from "@ui/styles";
 import type { ReactNode } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
 const { hideActionSheet } = lazyDestructure(() => findByProps("openLazy", "hideActionSheet"));
 const { showSimpleActionSheet } = lazyDestructure(() => findByProps("showSimpleActionSheet"));
