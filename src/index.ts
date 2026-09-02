@@ -1,4 +1,4 @@
-import { captureException } from "@lib/sentry";
+import { captureException, initSentry, overwriteDiscordSentry } from "@lib/sentry";
 import { awaitStorage } from "@core/vd-compat/storage";
 import { settings } from "@lib/api/settings";
 import patchErrorBoundary from "@core/debug/patches/patchErrorBoundary";
@@ -105,6 +105,8 @@ export default async () => {
 
         window.bunny = lib;
         initDebugger();
+        initSentry();
+        overwriteDiscordSentry();
 
         showToast("Safe mode is enabled. Plugins, themes, and fonts are disabled.", findAssetId("XSmallIcon")!);
         logger.log("Retribution is ready in safe mode!");
@@ -150,6 +152,8 @@ export default async () => {
     } else {
         initPlugins();
     }
+    initSentry();
+    overwriteDiscordSentry();
     logger.log("Retribution is ready!");
     } catch (e) {
         captureException(e);

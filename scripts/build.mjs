@@ -62,7 +62,11 @@ const config = {
         __DEV__: dev ?? JSON.stringify(releaseBranch !== "main"),
         __BUILD_TARGET__: JSON.stringify(buildTarget)
     },
-    inject: ["./shims/asyncIteratorSymbol.js", "./shims/promiseAllSettled.js"],
+    inject: [
+        "./shims/asyncIteratorSymbol.js",
+        "./shims/promiseAllSettled.js",
+        "./shims/urlSearchParams.js"
+    ],
     legalComments: "none",
     alias: {
         "!bunny-deps-shim!": "./shims/depsModule.ts",

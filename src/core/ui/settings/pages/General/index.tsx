@@ -106,6 +106,15 @@ export default function General() {
                             settings.enableDiscordDeveloperSettings = v;
                         }}
                     />
+                    <TableSwitchRow
+                        label="Error & Crash Reporting"
+                        subLabel="Send anonymous diagnostics to Sentry to help fix bugs and crashes."
+                        icon={<TableRow.Icon source={findAssetId("BugIcon") ?? findAssetId("WrenchIcon")!} />}
+                        value={settings.enableSentry ?? true}
+                        onValueChange={(v: boolean) => {
+                            settings.enableSentry = v;
+                        }}
+                    />
                 </TableRowGroup>
             </Stack>
         </ScrollView>

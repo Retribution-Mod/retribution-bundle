@@ -23,6 +23,7 @@ export interface Settings {
     };
     enableEvalCommand?: boolean;
     quote?: QuoteSettings;
+    enableSentry?: boolean;
 }
 
 export interface LoaderConfig {
