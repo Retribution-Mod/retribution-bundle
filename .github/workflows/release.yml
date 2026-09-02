@@ -39,6 +39,9 @@ jobs:
               env:
                 BUNDLE_VERSION: "v${{ github.event.inputs.version }}-new"
 
+            - name: Copy bundle for old target compatibility
+              run: cp dist/retribution-new.min.js dist/retribution-old.min.js
+
             - name: Create GitHub release
               uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
               with:
@@ -46,4 +49,5 @@ jobs:
                 name: Retribution v${{ github.event.inputs.version }}
                 files: |
                     dist/retribution-new.min.js
+                    dist/retribution-old.min.js
                 generate_release_notes: true
