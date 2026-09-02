@@ -29,8 +29,8 @@ const {
 
 const compileHermes = !!useHermes;
 
-if (buildTarget !== "new") {
-    throw new Error(`Invalid build target: ${buildTarget}. Only "new" is supported.`);
+if (!["old", "new"].includes(buildTarget)) {
+    throw new Error(`Invalid build target: ${buildTarget}. Use "old" or "new".`);
 }
 
 let context = null;

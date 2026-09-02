@@ -34,13 +34,15 @@ jobs:
             - name: Install dependencies
               run: bun install --frozen-lockfile
 
+            - name: Build old bundle
+              run: bun run build --build-minify --target old
+              env:
+                BUNDLE_VERSION: "v${{ github.event.inputs.version }}-old"
+
             - name: Build new bundle
               run: bun run build --build-minify --target new
               env:
                 BUNDLE_VERSION: "v${{ github.event.inputs.version }}-new"
-
-            - name: Copy bundle for old target compatibility
-              run: cp dist/retribution-new.min.js dist/retribution-old.min.js
 
             - name: Create GitHub release
               uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -48,6 +50,6 @@ jobs:
                 tag_name: v${{ github.event.inputs.version }}
                 name: Retribution v${{ github.event.inputs.version }}
                 files: |
-                    dist/retribution-new.min.js
                     dist/retribution-old.min.js
+                    dist/retribution-new.min.js
                 generate_release_notes: true
